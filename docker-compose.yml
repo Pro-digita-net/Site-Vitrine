@@ -1,0 +1,35 @@
+# Site vitrine ProDigital — déploiement Coolify (build pack « Docker Compose »).
+#
+# Coolify :
+#   - Docker Compose Location : /docker-compose.yml
+#   - Domaine du service « site » : https://pro-digital.net:8080
+#     (le « :8080 » indique le port interne ; l'URL publique reste en 443/HTTPS)
+#   - Aucun port n'est publié sur l'hôte : seul le proxy de Coolify accède au conteneur.
+#
+# Application 100 % statique : pas de backend, pas de base de données, pas de volume.
+
+services:
+  site:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NODE_VERSION: ${NODE_VERSION:-22}
+        NGINX_VERSION: ${NGINX_VERSION:-1.28}
+    restart: unless-stopped
+    expose:
+      - "8080"
+    # Durcissement : système de fichiers en lecture seule, aucun privilège.
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/healthz"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
