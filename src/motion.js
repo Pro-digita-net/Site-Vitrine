@@ -27,6 +27,7 @@ const SCROLL_HEADINGS = [
   ".section-heading h2",
   ".contact-inner h2",
   ".detail-grid h2",
+  ".expertise-panel-copy h2",
   ".studio-values h2",
 ].join(",");
 
@@ -37,8 +38,11 @@ const SCROLL_GROUPS = [
   ".vision > .eyebrow, .vision > div > *",
   ".section-heading .eyebrow, .section-heading > p, .section-heading > .quiet-link, .section-intro",
   ".services-grid > *",
+  ".expertise-panel",
+  ".situations-grid > *",
   ".projects-grid > *",
   ".home-solutions .products-grid > *",
+  ".home-formations .products-grid > *",
   ".catalog-footer",
   ".catalog-controls, .filter-list",
   ".catalog-help",
@@ -275,7 +279,7 @@ function scrollReveals() {
 function magneticButtons() {
   if (!window.matchMedia(FINE_POINTER).matches) return;
   const cleanups = gsap.utils
-    .toArray(".button, .header-contact")
+    .toArray(".button")
     .map((el) => {
       const xTo = gsap.quickTo(el, "x", { duration: 0.5, ease: "power3.out" });
       const yTo = gsap.quickTo(el, "y", { duration: 0.5, ease: "power3.out" });

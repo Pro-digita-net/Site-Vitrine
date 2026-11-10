@@ -26,6 +26,7 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Mail,
   Download,
   Plus,
@@ -36,9 +37,24 @@ import {
   CircleHelp,
   Sparkles,
   BookOpen,
+  GraduationCap,
+  Shield,
+  Globe,
+  LayoutTemplate,
+  Table2,
+  Lock,
+  Clock3,
 } from "lucide-react";
-import { products, services, projects, contactEmail } from "./data";
+import {
+  products,
+  formations,
+  services,
+  expertiseSituations,
+  projects,
+  contactEmail,
+} from "./data";
 import { usePageMotion } from "./motion";
+import ContactForm from "./ContactForm.jsx";
 import "./styles.css";
 
 const icons = {
@@ -50,6 +66,14 @@ const icons = {
   workflow: Workflow,
   book: BookOpen,
   file: FileText,
+  globe: Globe,
+  layout: LayoutTemplate,
+  table: Table2,
+  mail: Mail,
+  shield: Shield,
+  sparkles: Sparkles,
+  lock: Lock,
+  graduation: GraduationCap,
 };
 function Icon({ name, ...props }) {
   const Component = icons[name] || Layers;
@@ -119,15 +143,18 @@ function Header() {
         >
           <NavLink to="/studio">Le studio</NavLink>
           <NavLink to="/expertises">Expertises</NavLink>
+          <NavLink to="/formations">
+            Formations <span className="nav-tag">Petit prix</span>
+          </NavLink>
           <NavLink to="/projets">Projets</NavLink>
           <NavLink to="/solutions">
-            Nos SaaS <span className="nav-tag">À venir</span>
+            Nos logiciels <span className="nav-tag">À venir</span>
           </NavLink>
           <Link className="mobile-contact" to="/contact">
             Contact
           </Link>
         </nav>
-        <Link className="header-contact" to="/contact">
+        <Link className="button" to="/contact">
           Parlons de votre projet <Arrow />
         </Link>
         <button
@@ -149,13 +176,14 @@ function Footer() {
       <div className="container footer-top">
         <Brand />
         <p>
-          Une idée claire.
+          Création web.
           <br />
-          Une exécution précise.
+          Conseil et assistance informatique.
         </p>
         <div>
           <Link to="/expertises">Nos expertises</Link>
-          <Link to="/solutions">Catalogue SaaS</Link>
+          <Link to="/formations">Formations</Link>
+          <Link to="/solutions">Nos logiciels</Link>
           <Link to="/contact">Contact</Link>
         </div>
         <a href={`mailto:${contactEmail}`}>
@@ -165,32 +193,41 @@ function Footer() {
       </div>
       <div className="container footer-bottom">
         <span>© {new Date().getFullYear()} ProDigital</span>
-        <span>Web · Conseil IT · Support · SaaS</span>
+        <span>Web · Conseil · Formations · Futurs logiciels</span>
         <Link to="/confidentialite">Confidentialité</Link>
       </div>
     </footer>
   );
 }
-function ContactBand() {
+function ContactBand({
+  eyebrowNumber = "ET APRÈS ?",
+  eyebrow = "UNE CONVERSATION, POUR COMMENCER",
+  title = (
+    <>
+      La suite s’écrit
+      <br />
+      <em>ensemble.</em>
+    </>
+  ),
+  description = (
+    <>
+      Un site à créer, un outil à choisir, un problème à résoudre ?<br />
+      Décrivez votre situation pour que nous puissions étudier la demande.
+    </>
+  ),
+  buttonLabel = "Parlons de votre projet",
+  to = "/contact",
+} = {}) {
   return (
     <section className="contact-band">
       <div className="container contact-inner">
         <div>
-          <Eyebrow number="ET APRÈS ?">
-            UNE CONVERSATION, POUR COMMENCER
-          </Eyebrow>
-          <h2>
-            La suite s’écrit
-            <br />
-            <em>ensemble.</em>
-          </h2>
+          <Eyebrow number={eyebrowNumber}>{eyebrow}</Eyebrow>
+          <h2>{title}</h2>
         </div>
         <div className="contact-side">
-          <p>
-            Une idée, un besoin, un projet ?<br />
-            Prenons le temps d’en parler et de définir les prochaines étapes.
-          </p>
-          <Button />
+          <p>{description}</p>
+          <Button to={to}>{buttonLabel}</Button>
         </div>
       </div>
     </section>
@@ -309,7 +346,7 @@ function ProductPreview({ type = "crm", large = false }) {
               "Accès à une application",
               "Configuration du poste",
               "Connexion réseau",
-              "Mise à jour logiciel",
+              "Mise à jour du logiciel",
             ].map((x, i) => (
               <div className="ticket-row" key={x}>
                 <span>
@@ -339,7 +376,7 @@ function ProductPreview({ type = "crm", large = false }) {
         {type === "invoice" && (
           <div className="preview-body invoice-body">
             <div className="preview-heading">Chaque facture, au bon endroit.<span className="mini-pill">Ce mois-ci</span></div>
-            <div className="invoice-summary"><span>Montant facturé<strong>4 250,00 €</strong></span><span className="invoice-stamp"><Check size={12} /> À jour</span></div>
+            <div className="invoice-summary"><span>Montant facturé<strong>3 050,00 €</strong></span><span className="invoice-stamp"><Check size={12} /> À jour</span></div>
             {[["FAC-001", "1 800,00 €", "Réglée"], ["FAC-002", "1 250,00 €", "Envoyée"], ["FAC-003", "1 200,00 €", "Brouillon"]].map(([ref, amount, status], i) => (
               <div className="invoice-row" key={ref}><span>{ref}</span><strong>{amount}</strong><span className={`status status-${[2, 0, 1][i]}`}>{status}</span></div>
             ))}
@@ -370,7 +407,7 @@ function ProductPreview({ type = "crm", large = false }) {
         {type === "flow" && (
           <div className="preview-body">
             <div className="preview-heading">
-              Un workflow. Moins de répétition.
+              Des tâches qui s’enchaînent.
             </div>
             <p className="preview-sub">Vos outils travaillent ensemble.</p>
             <div className="workflow">
@@ -414,7 +451,87 @@ function ProductCard({ product }) {
         </div>
         <p>{product.description}</p>
         <span className="text-link">
-          Découvrir la solution <ArrowRight size={16} />
+          Découvrir le logiciel à venir <ArrowRight size={16} />
+        </span>
+      </div>
+    </Link>
+  );
+}
+function FormationPreview({ formation, large = false }) {
+  const modules = formation.features.slice(0, large ? 3 : 3);
+  return (
+    <div
+      className={`product-preview formation ${large ? "large" : ""}`}
+      aria-label="Aperçu illustratif de la formation"
+    >
+      <div className="preview-sidebar">
+        <div className="preview-mark">
+          <GraduationCap size={18} />
+        </div>
+        <BookOpen />
+        <Monitor />
+        <Sparkles />
+        <Check />
+        <div className="sidebar-bottom">
+          <CircleHelp />
+        </div>
+      </div>
+      <div className="preview-app">
+        <div className="preview-top">
+          <span>
+            Formation
+            <small> / {formation.category}</small>
+          </span>
+          <span className="avatar">PD</span>
+        </div>
+        <div className="preview-body formation-body">
+          <div className="preview-heading">
+            {formation.name}
+            <span className="mini-pill">{formation.price}</span>
+          </div>
+          <p className="preview-sub">{formation.tagline}</p>
+          <div className="formation-meta">
+            <span>
+              <Clock3 size={11} /> {formation.duration}
+            </span>
+            <span>{formation.format}</span>
+          </div>
+          {modules.map((module, i) => (
+            <div className="formation-row" key={module}>
+              <span>0{i + 1}</span>
+              <span>{module}</span>
+              <Check size={12} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+function FormationCard({ formation }) {
+  return (
+    <Link className="product-card" to={`/formations/${formation.id}`}>
+      <div className="product-art">
+        <FormationPreview formation={formation} />
+        <span className="preview-label">Aperçu illustratif</span>
+      </div>
+      <div className="product-info">
+        <div className="product-meta">
+          <span className="category-label">{formation.category}</span>
+          <span className="availability price">
+            <i />
+            {formation.price}
+          </span>
+        </div>
+        <div className="product-title">
+          <h3>{formation.name}</h3>
+          <span className="round-arrow">
+            <Arrow />
+          </span>
+        </div>
+        <p>{formation.description}</p>
+        <span className="text-link">
+          Découvrir la formation <ArrowRight size={16} />
         </span>
       </div>
     </Link>
@@ -434,7 +551,7 @@ function ServiceCards() {
             <span>{service.number}</span>
           </div>
           <h3>{service.name}</h3>
-          <p>{service.short}</p>
+          <p>{service.teaser || service.short}</p>
           <div className="service-tags">{service.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
           <span className="text-link">
             Explorer cette expertise <Arrow />
@@ -444,18 +561,88 @@ function ServiceCards() {
     </div>
   );
 }
-function Method() {
+function FeatureList({ items }) {
+  const [open, setOpen] = useState(null);
+  return (
+    <div className="feature-list">
+      {items.map((item, i) => {
+        const title = typeof item === "string" ? item : item.title;
+        const description = typeof item === "string" ? "" : item.description;
+        const detailId = `feature-detail-${i}`;
+        const isOpen = open === i;
+        const canToggle = Boolean(description);
+        return (
+          <div
+            key={title}
+            className={`feature-item${isOpen ? " is-open" : ""}${canToggle ? " is-toggle" : ""}`}
+          >
+            <span>0{i + 1}</span>
+            <div className="feature-copy">
+              <h3>{title}</h3>
+              {canToggle && (
+                <div
+                  className="feature-detail"
+                  hidden={!isOpen}
+                  id={detailId}
+                >
+                  <p>{description}</p>
+                </div>
+              )}
+            </div>
+            {canToggle ? (
+              <button
+                type="button"
+                className="feature-toggle"
+                aria-expanded={isOpen}
+                aria-controls={detailId}
+                aria-label={
+                  isOpen
+                    ? `Masquer le détail de ${title}`
+                    : `Afficher le détail de ${title}`
+                }
+                onClick={() => setOpen(isOpen ? null : i)}
+              >
+                <ChevronDown size={18} />
+              </button>
+            ) : (
+              <Check size={20} />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+const defaultMethodSteps = [
+  [
+    "Écouter",
+    "Clarifier votre besoin, vos contraintes et vos priorités.",
+  ],
+  [
+    "Concevoir",
+    "Définir la structure du projet et les choix à valider ensemble.",
+  ],
+  ["Réaliser", "Construire la solution, la tester et préparer son lancement."],
+  ["Accompagner", "Faciliter la prise en main et définir les évolutions utiles."],
+];
+function Method({
+  number = "05",
+  title = (
+    <>
+      Un projet clair,
+      <br />
+      <em>étape par étape.</em>
+    </>
+  ),
+  steps = defaultMethodSteps,
+} = {}) {
   const [hoveredStep, setHoveredStep] = useState(null);
   return (
     <section className="method section">
       <div className="container">
         <div className="section-heading">
-          <Eyebrow number="05">NOTRE MÉTHODE</Eyebrow>
-          <h2>
-            De la première idée
-            <br />
-            <em>à la prochaine étape.</em>
-          </h2>
+          <Eyebrow number={number}>NOTRE MÉTHODE</Eyebrow>
+          <h2>{title}</h2>
         </div>
         <div
           className="method-grid"
@@ -463,18 +650,7 @@ function Method() {
           style={{ "--method-hover": hoveredStep === null ? undefined : hoveredStep / 3 }}
         >
           <div className="method-path" aria-hidden="true"><span className="method-path-fill" /></div>
-          {[
-            [
-              "Écouter",
-              "Comprendre vos enjeux, vos utilisateurs et vos contraintes.",
-            ],
-            [
-              "Concevoir",
-              "Donner une structure claire à la solution et à son expérience.",
-            ],
-            ["Réaliser", "Construire, vérifier et préparer la mise en ligne."],
-            ["Accompagner", "Faire évoluer vos outils avec votre activité."],
-          ].map(([title, description], i) => (
+          {steps.map(([title, description], i) => (
             <div
               key={title}
               className={`method-step${hoveredStep === i ? " is-active" : ""}`}
@@ -505,10 +681,11 @@ function Home() {
             <br />
             <span className="hero-verb">prend</span> <em>forme.</em>
           </h1>
-          <p className="hero-italic">L’IT suit le mouvement.</p>
+          <p className="hero-italic">Création web et accompagnement informatique.</p>
           <p className="hero-description">
-            Un site qui vous ressemble. Une informatique qui vous simplifie la vie.
-            Création web, conseil et support IT : avançons ensemble.
+            Indépendants, TPE, PME et groupes : nous créons vos sites web,
+            vous conseillons sur vos outils et accompagnons vos équipes
+            dans leur quotidien informatique.
           </p>
           <div className="hero-actions">
             <Button />
@@ -517,7 +694,7 @@ function Home() {
             </Link>
           </div>
         </div>
-        <div className="hero-mobile-foot"><p>Des sites qui vous ressemblent.<br />Des outils qui vous simplifient la vie.</p><button type="button" onClick={() => document.getElementById("home-offers")?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" })}><span>Faites<br />défiler</span><ArrowDown size={18} /></button></div><div className="hero-art">
+        <div className="hero-mobile-foot"><p>Création de sites web.<br />Conseil et assistance informatique.</p><button type="button" onClick={() => document.getElementById("home-offers")?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" })}><span>Faites<br />défiler</span><ArrowDown size={18} /></button></div><div className="hero-art">
           <div className="hero-frame">
             <img
               src="/assets/brand/connexion-office.webp"
@@ -542,14 +719,14 @@ function Home() {
         <Eyebrow number="02">NOTRE VISION</Eyebrow>
         <div>
           <h2>
-            Un digital utile.
-            <br className="mobile-break" /> Un impact <em>durable.</em>
+            Partir de vos usages.
+            <br className="mobile-break" /> Choisir <em>l’essentiel.</em>
           </h2>
           <p>
-            Des sites qui vous ressemblent. Des outils qui vous simplifient la
-            vie.
+            Avant de choisir une solution, nous cherchons à comprendre ce qui
+            fonctionne déjà et ce qui vous freine.
             <br />
-            Nous relions le design, la technologie et vos enjeux métier.
+            Ces observations guident les fonctionnalités, les contenus et les priorités du projet.
           </p>
         </div>
       </section>
@@ -565,9 +742,9 @@ function Home() {
               </h2>
             </div>
             <p>
-              Une vision d’ensemble, une attention
+              Créer votre site, choisir vos outils
               <br />
-              portée à chaque détail.
+              ou obtenir une assistance informatique.
             </p>
           </div>
           <ServiceCards />
@@ -618,21 +795,21 @@ function Home() {
       <section className="section container home-solutions">
         <div className="section-heading split">
           <div>
-            <Eyebrow number="06">L’ÉCOSYSTÈME PRODIGITAL</Eyebrow>
+            <Eyebrow number="06">NOS FUTURS OUTILS</Eyebrow>
             <h2>
-              Vos ambitions.
+              Des usages concrets.
               <br />
-              <em>Les bons outils.</em>
+              <em>Des logiciels à venir.</em>
             </h2>
           </div>
           <div className="section-intro">
             <p>
-              CRM, ITSM, base de connaissances, facturation…
-              Nous préparons des outils pour simplifier votre quotidien.
-              Découvrez les solutions à venir.
+              Suivi des clients, assistance informatique, procédures et facturation :
+              découvrez les usages envisagés pour nos futurs logiciels
+              et partagez les difficultés que vous aimeriez résoudre.
             </p>
             <Link className="quiet-link" to="/solutions">
-              Tout le catalogue <Arrow />
+              Tous les logiciels à venir <Arrow />
             </Link>
           </div>
         </div>
@@ -645,9 +822,45 @@ function Home() {
             ))}
         </div>
         <div className="catalog-footer">
-          <span>Un besoin spécifique ? Construisons la bonne réponse.</span>
+          <span>Quel outil serait utile à votre équipe ? Découvrez les projets envisagés.</span>
           <Button to="/solutions" secondary>
-            Explorer le catalogue
+            Explorer nos futurs logiciels
+          </Button>
+        </div>
+      </section>
+      <section className="section container home-formations">
+        <div className="section-heading split">
+          <div>
+            <Eyebrow number="07">NOS FORMATIONS</Eyebrow>
+            <h2>
+              Apprendre vite.
+              <br />
+              <em>Payer peu.</em>
+            </h2>
+          </div>
+          <div className="section-intro">
+            <p>
+              Web, bureautique, sécurité, IA et assistance IT :
+              des formations courtes conçues avec l’assistance de l’IA,
+              proposées à tarif accessible.
+            </p>
+            <Link className="quiet-link" to="/formations">
+              Tout le catalogue <Arrow />
+            </Link>
+          </div>
+        </div>
+        <div className="products-grid">
+          {formations
+            .filter((f) => f.featured)
+            .slice(0, 4)
+            .map((formation) => (
+              <FormationCard formation={formation} key={formation.id} />
+            ))}
+        </div>
+        <div className="catalog-footer">
+          <span>Des contenus clairs, créés avec l’IA, pour monter en compétence sans budget élevé.</span>
+          <Button to="/formations" secondary>
+            Explorer les formations
           </Button>
         </div>
       </section>
@@ -691,19 +904,19 @@ function Catalog() {
   }
   return (
     <>
-      <Breadcrumb items={[{ label: "Nos SaaS" }]} />
+      <Breadcrumb items={[{ label: "Nos logiciels" }]} />
       <section className="container page-heading catalog-heading">
-        <Eyebrow number="LE CATALOGUE">SOLUTIONS SAAS</Eyebrow>
+        <Eyebrow number="LE CATALOGUE">LOGICIELS À VENIR</Eyebrow>
         <h1>
-          À chaque besoin,
+          Nos futurs logiciels,
           <br />
-          <em>le bon outil.</em>
+          <em>vos usages en tête.</em>
         </h1>
         <p>
-          Notre écosystème se construit : CRM, ITSM, connaissances et facturation.
-          <br className="desktop-break" /> Découvrez nos futurs outils et partagez vos besoins.
+          Relation client, assistance informatique, partage des connaissances et facturation.
+          <br className="desktop-break" /> Ces logiciels sont en préparation et ne sont pas encore disponibles.
         </p>
-        <div className="catalog-notice"><span className="availability"><i />Solutions à venir</span><span>Des aperçus pour découvrir notre vision. Les dates de lancement seront annoncées ici.</span></div>
+        <div className="catalog-notice"><span className="availability"><i />Logiciels à venir</span><span>Les aperçus illustrent des fonctionnalités envisagées. Aucune date de lancement n’est annoncée pour le moment.</span></div>
       </section>
       <section className="container catalog-content">
         <div className="catalog-controls">
@@ -711,14 +924,14 @@ function Catalog() {
             <Search size={20} />
             <input
               type="search"
-              aria-label="Rechercher une solution"
-              placeholder="Rechercher une solution, un usage…"
+              aria-label="Rechercher un logiciel"
+              placeholder="Rechercher un logiciel, un usage…"
               value={query}
               onChange={(e) => change("q", e.target.value)}
             />
           </label>
           <span className="result-count" aria-live="polite">
-            {filtered.length} solution{filtered.length !== 1 ? "s" : ""}
+            {filtered.length} logiciel{filtered.length !== 1 ? "s" : ""} à venir
           </span>
         </div>
         <div className="filter-list" aria-label="Filtrer par usage">
@@ -744,7 +957,7 @@ function Catalog() {
         ) : (
           <div className="empty-state">
             <Search />
-            <h2>Aucune solution ne correspond.</h2>
+            <h2>Aucun logiciel ne correspond à votre recherche.</h2>
             <p>Essayez un autre mot-clé ou élargissez les filtres.</p>
             <button className="button" onClick={() => setParams({})}>
               Réinitialiser la recherche <ArrowRight size={18} />
@@ -804,7 +1017,7 @@ function ProductDetail() {
     <>
       <Breadcrumb
         items={[
-          { label: "Nos SaaS", to: "/solutions" },
+          { label: "Nos logiciels", to: "/solutions" },
           { label: product.name },
         ]}
       />
@@ -817,7 +1030,7 @@ function ProductDetail() {
           </h2>
           <p>{product.description}</p>
           <Button to={`/contact?solution=${encodeURIComponent(product.name)}`}>
-            Discuter de mon besoin
+            Partager mon besoin
           </Button>
         </div>
         <div className="detail-preview">
@@ -829,11 +1042,11 @@ function ProductDetail() {
       </section>
       <section className="container detail-grid section">
         <div>
-          <Eyebrow number="01">POUR VOTRE ACTIVITÉ</Eyebrow>
+          <Eyebrow number="01">FONCTIONNALITÉS ENVISAGÉES</Eyebrow>
           <h2>
-            Un usage clair.
+            Pour quels usages,
             <br />
-            <em>Une solution adaptée.</em>
+            <em>pour quelles équipes ?</em>
           </h2>
           <p>{product.audience}</p>
         </div>
@@ -850,9 +1063,9 @@ function ProductDetail() {
       <section className="container product-disclaimer">
         <CircleHelp />
         <p>
-          Cette solution est à venir. Les interfaces et les données sont illustratives ;
-          les fonctionnalités présentées décrivent la direction envisagée.
-          Contactez-nous pour partager vos besoins et échanger sur le projet.
+          Ce logiciel n’est pas encore disponible. Les interfaces et les données sont illustratives ;
+          les fonctionnalités envisagées peuvent évoluer.
+          Vous pouvez nous contacter pour expliquer vos usages et contribuer à la réflexion.
         </p>
       </section>
       <section className="container section">
@@ -861,7 +1074,7 @@ function ProductDetail() {
             À découvrir <em>aussi.</em>
           </h2>
           <Link to="/solutions" className="quiet-link">
-            Tout le catalogue <Arrow />
+            Tous les logiciels à venir <Arrow />
           </Link>
         </div>
         <div className="related-grid">
@@ -886,11 +1099,265 @@ function ProductDetail() {
     </>
   );
 }
+function FormationsCatalog() {
+  const [params, setParams] = useSearchParams();
+  const query = params.get("q") || "";
+  const category = params.get("categorie") || "Tous les thèmes";
+  const categories = [
+    "Tous les thèmes",
+    ...new Set(formations.map((f) => f.category)),
+  ];
+  const normalize = (value) =>
+    value
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+  const filtered = formations.filter(
+    (f) =>
+      (category === "Tous les thèmes" || f.category === category) &&
+      normalize(`${f.name} ${f.category} ${f.description}`).includes(
+        normalize(query),
+      ),
+  );
+  const pageSize = 6,
+    pages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const page = Math.min(
+    pages,
+    Math.max(1, Number.parseInt(params.get("page"), 10) || 1),
+  );
+  function change(key, value) {
+    const next = new URLSearchParams(params);
+    if (value) next.set(key, value);
+    else next.delete(key);
+    next.delete("page");
+    setParams(next, { replace: true });
+  }
+  return (
+    <>
+      <Breadcrumb items={[{ label: "Formations" }]} />
+      <section className="container page-heading catalog-heading">
+        <Eyebrow number="LE CATALOGUE">FORMATIONS</Eyebrow>
+        <h1>
+          Monter en compétence,
+          <br />
+          <em>sans se ruiner.</em>
+        </h1>
+        <p>
+          Web, bureautique, sécurité, IA et assistance IT.
+          <br className="desktop-break" /> Des formations courtes, conçues avec
+          l’assistance de l’IA, proposées à petit prix.
+        </p>
+        <div className="catalog-notice">
+          <span className="availability price">
+            <i />
+            À partir de 19 €
+          </span>
+          <span>
+            Contenus créés avec l’assistance de l’IA pour rester clairs, à jour
+            et accessibles. Format en ligne, à votre rythme.
+          </span>
+        </div>
+      </section>
+      <section className="container catalog-content">
+        <div className="catalog-controls">
+          <label className="search-field">
+            <Search size={20} />
+            <input
+              type="search"
+              aria-label="Rechercher une formation"
+              placeholder="Rechercher une formation, un thème…"
+              value={query}
+              onChange={(e) => change("q", e.target.value)}
+            />
+          </label>
+          <span className="result-count" aria-live="polite">
+            {filtered.length} formation{filtered.length !== 1 ? "s" : ""}
+          </span>
+        </div>
+        <div className="filter-list" aria-label="Filtrer par thème">
+          {categories.map((c) => (
+            <button
+              key={c}
+              className={category === c ? "filter active" : "filter"}
+              aria-pressed={category === c}
+              onClick={() =>
+                change("categorie", c === "Tous les thèmes" ? "" : c)
+              }
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+        {filtered.length ? (
+          <div className="products-grid">
+            {filtered.slice((page - 1) * pageSize, page * pageSize).map((f) => (
+              <FormationCard formation={f} key={f.id} />
+            ))}
+          </div>
+        ) : (
+          <div className="empty-state">
+            <Search />
+            <h2>Aucune formation ne correspond à votre recherche.</h2>
+            <p>Essayez un autre mot-clé ou élargissez les filtres.</p>
+            <button className="button" onClick={() => setParams({})}>
+              Réinitialiser la recherche <ArrowRight size={18} />
+            </button>
+          </div>
+        )}
+        {pages > 1 && (
+          <nav className="pagination" aria-label="Pages du catalogue">
+            <button
+              disabled={page === 1}
+              onClick={() => {
+                const next = new URLSearchParams(params);
+                next.set("page", String(page - 1));
+                setParams(next);
+              }}
+              aria-label="Page précédente"
+            >
+              <ChevronLeft />
+            </button>
+            <span>
+              Page {page} sur {pages}
+            </span>
+            <button
+              disabled={page === pages}
+              onClick={() => {
+                const next = new URLSearchParams(params);
+                next.set("page", String(page + 1));
+                setParams(next);
+              }}
+              aria-label="Page suivante"
+            >
+              <ChevronRight />
+            </button>
+          </nav>
+        )}
+        <div className="catalog-help">
+          <Icon name="graduation" />
+          <div>
+            <h2>Besoin d’une formation sur mesure ?</h2>
+            <p>
+              Nous pouvons adapter un parcours à votre niveau, votre outil ou
+              votre équipe.
+            </p>
+          </div>
+          <Button secondary>Échangeons</Button>
+        </div>
+      </section>
+      <ContactBand />
+    </>
+  );
+}
+function FormationDetail() {
+  const { id } = useParams();
+  const formation = formations.find((f) => f.id === id);
+  if (!formation) return <NotFound />;
+  return (
+    <>
+      <Breadcrumb
+        items={[
+          { label: "Formations", to: "/formations" },
+          { label: formation.name },
+        ]}
+      />
+      <section className="container product-detail-hero">
+        <div>
+          <div className="product-meta detail-meta">
+            <span className="category-label">{formation.category}</span>
+            <span className="availability price">
+              <i />
+              {formation.price}
+            </span>
+          </div>
+          <h1>{formation.name}</h1>
+          <h2>
+            <em>{formation.tagline}</em>
+          </h2>
+          <p>{formation.description}</p>
+          <p className="formation-detail-meta">
+            <span>
+              <Clock3 size={16} /> {formation.duration}
+            </span>
+            <span>{formation.format}</span>
+          </p>
+          <Button
+            to={`/contact?formation=${encodeURIComponent(formation.name)}`}
+          >
+            Demander cette formation
+          </Button>
+        </div>
+        <div className="detail-preview">
+          <FormationPreview formation={formation} large />
+          <span className="preview-label">
+            Parcours illustratif · contenu assisté par IA
+          </span>
+        </div>
+      </section>
+      <section className="container detail-grid section">
+        <div>
+          <Eyebrow number="01">AU PROGRAMME</Eyebrow>
+          <h2>
+            Ce que vous
+            <br />
+            <em>allez apprendre.</em>
+          </h2>
+          <p>{formation.audience}</p>
+        </div>
+        <div className="feature-list">
+          {formation.features.map((feature, i) => (
+            <div key={feature}>
+              <span>0{i + 1}</span>
+              <h3>{feature}</h3>
+              <Check size={20} />
+            </div>
+          ))}
+        </div>
+      </section>
+      <section className="container product-disclaimer">
+        <CircleHelp />
+        <p>
+          Cette formation est conçue avec l’assistance de l’IA pour rester claire
+          et accessible. Le contenu peut évoluer. Contactez-nous pour confirmer
+          le tarif, le format et l’accès.
+        </p>
+      </section>
+      <section className="container section">
+        <div className="section-heading split">
+          <h2>
+            À découvrir <em>aussi.</em>
+          </h2>
+          <Link to="/formations" className="quiet-link">
+            Toutes les formations <Arrow />
+          </Link>
+        </div>
+        <div className="related-grid">
+          {formations
+            .filter((f) => f.id !== id)
+            .slice(0, 3)
+            .map((f) => (
+              <Link
+                to={`/formations/${f.id}`}
+                className="related-card"
+                key={f.id}
+              >
+                <Icon name={f.icon} />
+                <span>{f.category}</span>
+                <h3>{f.name}</h3>
+                <Arrow />
+              </Link>
+            ))}
+        </div>
+      </section>
+      <ContactBand />
+    </>
+  );
+}
 function ExpertiseIndex() {
   return (
     <>
       <Breadcrumb items={[{ label: "Nos expertises" }]} />
-      <section className="container page-heading">
+      <section className="container page-heading expertise-intro">
         <Eyebrow number="LE SAVOIR-FAIRE">WEB & IT</Eyebrow>
         <h1>
           De l’idée
@@ -898,18 +1365,117 @@ function ExpertiseIndex() {
           <em>au quotidien.</em>
         </h1>
         <p>
-          Créer votre présence en ligne, éclairer vos choix technologiques
-          <br className="desktop-break" /> et accompagner vos outils dans la
-          durée.
+          De la création de votre site internet à l’accompagnement de votre
+          environnement informatique, ProDigital vous aide à construire,
+          optimiser et maintenir des solutions adaptées à vos besoins.
+        </p>
+        <p>
+          Trois domaines d’expertise, un même objectif : simplifier votre
+          quotidien et accompagner le développement de votre activité.
         </p>
       </section>
       <section className="dark section">
         <div className="container">
+          <div className="section-heading split">
+            <div>
+              <Eyebrow number="01">TROIS DOMAINES</Eyebrow>
+              <h2>
+                Des expertises concrètes.
+                <br />
+                <em>Des prestations claires.</em>
+              </h2>
+            </div>
+            <p>
+              Choisissez le domaine qui correspond à votre besoin,
+              <br className="desktop-break" /> puis découvrez le détail des prestations.
+            </p>
+          </div>
           <ServiceCards />
         </div>
       </section>
-      <Method />
-      <ContactBand />
+      <section className="section container expertise-panels">
+        {services.map((service) => (
+          <article className="expertise-panel" key={service.id}>
+            <div className="expertise-panel-copy">
+              <Eyebrow number={service.number}>NOTRE EXPERTISE</Eyebrow>
+              <h2>{service.name}</h2>
+              <p className="expertise-panel-lead">
+                <em>{service.short}</em>
+              </p>
+              <p>{service.description}</p>
+              <div className="expertise-panel-actions">
+                <Button
+                  to={`/expertises/${service.id}`}
+                  secondary
+                  className="expertise-panel-cta"
+                >
+                  Voir le détail
+                </Button>
+                {service.id === "conseil-it" && (
+                  <Link className="quiet-link" to="/formations">
+                    Catalogue de formations <Arrow />
+                  </Link>
+                )}
+              </div>
+            </div>
+            <FeatureList items={service.deliverables} />
+          </article>
+        ))}
+      </section>
+      <section className="section container expertise-situations">
+        <div className="section-heading">
+          <Eyebrow number="02">VOTRE SITUATION</Eyebrow>
+          <h2>
+            Des solutions adaptées
+            <br />
+            <em>à votre réalité.</em>
+          </h2>
+        </div>
+        <div className="situations-grid">
+          {expertiseSituations.map((situation, i) => (
+            <div className="situation-item" key={situation.id}>
+              <span className="step-index">0{i + 1}</span>
+              <h3>{situation.title}</h3>
+              <p>{situation.description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+      <Method
+        number="03"
+        steps={[
+          [
+            "Comprendre",
+            "Identifier les objectifs, les contraintes et les besoins.",
+          ],
+          [
+            "Proposer",
+            "Définir une solution adaptée avec un périmètre clair.",
+          ],
+          [
+            "Réaliser",
+            "Mettre en œuvre, vérifier et livrer la prestation.",
+          ],
+          [
+            "Accompagner",
+            "Assurer le suivi convenu et les évolutions nécessaires.",
+          ],
+        ]}
+      />
+      <ContactBand
+        eyebrowNumber="ET MAINTENANT ?"
+        eyebrow="PRENONS CONTACT"
+        title={
+          <>
+            Parlons de votre
+            <br />
+            <em>prochain projet.</em>
+          </>
+        }
+        description="Un site à créer, une question informatique ou un besoin d’accompagnement ? Présentez-nous votre situation et échangeons sur les solutions envisageables."
+        buttonLabel="Parlons de votre projet"
+        to="/contact"
+      />
     </>
   );
 }
@@ -940,14 +1506,20 @@ function ServiceDetail() {
         <div className="service-photo">
           <img
             src={
-              id === "creation-web"
-                ? "/assets/architecture.webp"
-                : "/assets/reference/studio-photo.webp"
+              id === "creation-web" ? "/assets/photos/developpement-web.jpg" :
+              id === "conseil-it" ? "/assets/photos/conseil-informatique.jpg" :
+              "/assets/photos/assistance-informatique.jpg"
             }
+            srcSet={
+              id === "creation-web" ? "/assets/photos/developpement-web-640.jpg 640w, /assets/photos/developpement-web.jpg 1600w" :
+              id === "conseil-it" ? "/assets/photos/conseil-informatique-640.jpg 640w, /assets/photos/conseil-informatique.jpg 1600w" :
+              "/assets/photos/assistance-informatique-640.jpg 640w, /assets/photos/assistance-informatique.jpg 1600w"
+            }
+            sizes="(max-width: 760px) 90vw, 45vw"
             alt={
-              id === "creation-web"
-                ? "Architecture contemporaine, inspiration pour un projet web"
-                : "Carnet de conception et outils de travail sur un bureau"
+              id === "creation-web" ? "Développement d’un site web : code affiché sur un ordinateur portable et un écran" :
+              id === "conseil-it" ? "Deux professionnels examinent un besoin autour d’un ordinateur et de notes" :
+              "Professionnelle équipée d’un casque pour une assistance à distance sur ordinateur"
             }
           />
           <span>
@@ -960,41 +1532,46 @@ function ServiceDetail() {
           <div>
             <Eyebrow number="L’ACCOMPAGNEMENT">DU CADRAGE À L’ACTION</Eyebrow>
             <h2>
-              Avancer avec
+              Ce que comprend
               <br />
-              <em>une vision claire.</em>
+              <em>l’accompagnement.</em>
             </h2>
           </div>
-          <div className="feature-list">
-            {service.deliverables.map((d, i) => (
-              <div key={d}>
-                <span>0{i + 1}</span>
-                <h3>{d}</h3>
-                <Arrow />
-              </div>
-            ))}
-          </div>
+          <FeatureList items={service.deliverables} />
         </div>
       </section>
-      <section className="container section detail-grid">
-        <h2>
-          Ça vous
-          <br />
-          <em>parle ?</em>
-        </h2>
+      <section className="container section detail-grid questions-section">
+        <div className="questions-heading">
+          <Eyebrow number="03">PASSER À L’ACTION</Eyebrow>
+          <h2>
+            Ça vous
+            <br />
+            <em>parle ?</em>
+          </h2>
+        </div>
         <div className="questions">
-          {service.questions.map((q) => (
-            <p key={q}>
-              <Check />
-              {q}
-            </p>
-          ))}
-          <Button
-            to={`/contact?service=${encodeURIComponent(service.name)}`}
-            secondary
-          >
-            Discutons-en
-          </Button>
+          <ul className="questions-list">
+            {service.questions.map((q) => (
+              <li key={q}>
+                <Check aria-hidden="true" />
+                <span>{q}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="questions-actions">
+            <Button to={`/contact?service=${encodeURIComponent(service.name)}`}>
+              Discutons-en
+            </Button>
+            {service.id === "conseil-it" ? (
+              <Link className="quiet-link" to="/formations">
+                Voir le catalogue de formations <Arrow />
+              </Link>
+            ) : (
+              <Link className="quiet-link" to="/expertises">
+                Toutes nos expertises <Arrow />
+              </Link>
+            )}
+          </div>
         </div>
       </section>
       <ContactBand />
@@ -1013,9 +1590,9 @@ function Projects() {
           <em>aux idées.</em>
         </h1>
         <p>
-          Deux projets concepts pour explorer notre approche du design,
-          <br className="desktop-break" /> des contenus et des outils
-          numériques.
+          Deux projets concepts pour expliquer nos choix de design et d’organisation des contenus.
+          <br className="desktop-break" /> Des explorations de conception,
+          sans commande client ni résultats commerciaux revendiqués.
         </p>
       </section>
       <section className="container project-list">
@@ -1092,37 +1669,44 @@ function Studio() {
         <div>
           <Eyebrow number="PRODIGITAL">STUDIO DIGITAL & IT</Eyebrow>
           <h1>
-            Une idée claire.
+            Le web et l’informatique,
             <br />
             <em>
-              Une attention
-              <br />à chaque détail.
+              au service
+              <br />de vos usages.
             </em>
           </h1>
           <p>
-            Nous réunissons création web, conseil IT, support et solutions SaaS
-            autour d’une même intention. Concevoir des outils utiles, cohérents
-            et agréables à utiliser.
+            ProDigital réunit une équipe d’agents et de développeurs spécialisés
+            dans les interfaces web et les fonctionnalités côté serveur.
+            Nous nous appuyons sur plus de 8 ans d’expérience en développement web
+            et 5 ans en support informatique pour accompagner les indépendants,
+            les TPE, les PME et les groupes.
           </p>
           <Button secondary>Faisons connaissance</Button>
         </div>
         <img
-          src="/assets/reference/studio-photo.webp"
-          alt="Carnet de croquis et stylo dans un espace de travail lumineux"
+          src="/assets/photos/collaboration.jpg"
+          srcSet="/assets/photos/collaboration-640.jpg 640w, /assets/photos/collaboration.jpg 1600w"
+          sizes="(max-width: 760px) 90vw, 45vw"
+          alt="Photo d’illustration : collaboration autour de plusieurs ordinateurs portables"
         />
       </section>
       <Method />
       <section className="container section studio-values">
-        <Eyebrow number="NOTRE APPROCHE">FAIRE SIMPLE, FAIRE JUSTE</Eyebrow>
+        <Eyebrow number="NOTRE EXPÉRIENCE">AU CONTACT DES UTILISATEURS</Eyebrow>
         <h2>
-          Comprendre avant de concevoir.
+          L’expérience du terrain.
           <br />
-          <em>Accompagner après le lancement.</em>
+          <em>Le savoir à partager.</em>
         </h2>
         <p>
-          Chaque projet commence par un échange. Nous clarifions les besoins,
-          choisissons une direction et avançons étape par étape. Le design et la
-          technique prennent leur sens lorsqu’ils servent votre activité.
+          Notre expérience au sein de différentes directions des systèmes d’information
+          (DSI) nous a appris à comprendre les contraintes des équipes et les difficultés
+          des utilisateurs. Formés, diplômés et certifiés, nous associons ces compétences
+          à une approche pratique. Nos formations sur mesure permettent d’acquérir
+          des bases solides et d’approfondir les sujets de notre catalogue,
+          selon votre niveau et vos objectifs.
         </p>
       </section>
       <ContactBand />
@@ -1132,35 +1716,11 @@ function Studio() {
 
 function Contact() {
   const [params] = useSearchParams();
-  const initial = params.get("solution") || params.get("service") || "";
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    company: "",
-    subject: initial,
-    message: "",
-  });
-  const [prepared, setPrepared] = useState(false);
-  const update = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    setPrepared(false);
-  };
-  const body = () =>
-    `Bonjour ProDigital,\n\n${form.message}\n\nSujet : ${form.subject || "À définir"}\nNom : ${form.name}\nEntreprise : ${form.company || "Non précisée"}\nE-mail : ${form.email}`;
-  const emailHref = `mailto:${contactEmail}?subject=${encodeURIComponent("Projet ProDigital — " + (form.subject || "Premier échange"))}&body=${encodeURIComponent(body())}`;
-  function submit(e) {
-    e.preventDefault();
-    setPrepared(true);
-  }
-  function download() {
-    const blob = new Blob([body()], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "mon-projet-prodigital.txt";
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  }
+  const initial =
+    params.get("formation") ||
+    params.get("solution") ||
+    params.get("service") ||
+    "";
   return (
     <>
       <Breadcrumb items={[{ label: "Contact" }]} />
@@ -1168,14 +1728,14 @@ function Contact() {
         <div className="contact-copy">
           <Eyebrow number="PREMIER ÉCHANGE">FAISONS CONNAISSANCE</Eyebrow>
           <h1>
-            La suite s’écrit
+            Présentez-nous
             <br />
-            <em>ensemble.</em>
+            <em>votre projet.</em>
           </h1>
           <p>
-            Parlez-nous de votre activité, de vos idées et de ce que vous
-            aimeriez simplifier. Nous définirons les prochaines étapes avec
-            vous.
+            Décrivez ce que vous souhaitez créer ou améliorer, les outils déjà utilisés
+            et votre échéance si vous en avez une. Ces éléments nous aideront à
+            comprendre votre demande avant le premier échange.
           </p>
           <a className="contact-mail" href={`mailto:${contactEmail}`}>
             <Mail />
@@ -1185,117 +1745,17 @@ function Contact() {
           <div className="contact-next">
             <h3>Et ensuite ?</h3>
             <p>
-              <span>01</span> Nous prenons connaissance de votre besoin.
+              <span>01</span> Nous lisons votre message pour comprendre la demande.
             </p>
             <p>
-              <span>02</span> Nous échangeons pour préciser le projet.
+              <span>02</span> Nous précisons ensemble les objectifs et les contraintes.
             </p>
             <p>
-              <span>03</span> Nous définissons une approche adaptée.
+              <span>03</span> Nous déterminons si nous pouvons intervenir et dans quel périmètre.
             </p>
           </div>
         </div>
-        <form className="contact-form" onSubmit={submit}>
-          <h2>Parlons de votre projet.</h2>
-          <p className="form-intro">
-            Préparez votre message, puis envoyez-le avec votre messagerie.
-          </p>
-          <div className="form-row">
-            <label>
-              Votre nom <span>*</span>
-              <input
-                name="name"
-                autoComplete="name"
-                value={form.name}
-                onChange={update}
-                required
-                maxLength={100}
-              />
-            </label>
-            <label>
-              Votre entreprise
-              <input
-                name="company"
-                autoComplete="organization"
-                value={form.company}
-                onChange={update}
-                maxLength={150}
-              />
-            </label>
-          </div>
-          <label>
-            Votre e-mail <span>*</span>
-            <input
-              type="email"
-              name="email"
-              autoComplete="email"
-              value={form.email}
-              onChange={update}
-              required
-              maxLength={200}
-            />
-          </label>
-          <label>
-            Votre sujet
-            <select name="subject" value={form.subject} onChange={update}>
-              <option value="">Choisir un sujet</option>
-              <optgroup label="Nos expertises">
-                {services.map((s) => (
-                  <option key={s.id}>{s.name}</option>
-                ))}
-              </optgroup>
-              <optgroup label="Nos solutions">
-                {products.map((p) => (
-                  <option key={p.id}>{p.name}</option>
-                ))}
-              </optgroup>
-              <option>Autre besoin</option>
-            </select>
-          </label>
-          <label>
-            Quelques mots sur votre projet <span>*</span>
-            <textarea
-              name="message"
-              rows={5}
-              placeholder="Votre besoin, vos objectifs, votre contexte…"
-              value={form.message}
-              onChange={update}
-              required
-              minLength={10}
-              maxLength={5000}
-            />
-          </label>
-          <p className="form-privacy">
-            Les champs marqués * sont obligatoires. Votre message est envoyé
-            uniquement lorsque vous le validez dans votre messagerie.
-          </p>
-          <button type="submit" className="button">
-            Préparer mon message <Arrow />
-          </button>
-          {prepared && (
-            <div className="prepared" role="status">
-              <Check />
-              <div>
-                <h3>Votre message est prêt.</h3>
-                <p>
-                  Ouvrez votre messagerie pour le relire et l’envoyer à{" "}
-                  {contactEmail}.
-                </p>
-                <a className="button" href={emailHref}>
-                  Ouvrir ma messagerie <Mail size={17} />
-                </a>
-                <button
-                  type="button"
-                  className="download-link"
-                  onClick={download}
-                >
-                  <Download size={16} />
-                  Télécharger mon message
-                </button>
-              </div>
-            </div>
-          )}
-        </form>
+        <ContactForm initialSubject={initial} />
       </section>
     </>
   );
@@ -1307,16 +1767,19 @@ function Privacy() {
       <article className="container legal-page">
         <Eyebrow number="VOS DONNÉES">CONFIDENTIALITÉ</Eyebrow>
         <h1>
-          Des échanges
+          Confidentialité
           <br />
-          <em>en confiance.</em>
+          <em>et données personnelles.</em>
         </h1>
         <h2>Formulaire de contact</h2>
         <p>
-          Le formulaire prépare un message dans votre navigateur. Il ouvre
-          ensuite votre application de messagerie à votre demande. L’envoi
-          intervient lorsque vous le confirmez dans cette application. Vous
-          pouvez également télécharger le message préparé.
+          Lorsque vous envoyez le formulaire, les informations saisies
+          (identité, e-mail, entreprise, sujet, précisions et message) sont
+          transmises à ProDigital, enregistrées sur nos serveurs et dans notre
+          outil de suivi des demandes, puis signalées à notre équipe par
+          e-mail. Elles servent uniquement à traiter votre demande et à vous
+          répondre. Rien n’est transmis tant que vous n’avez pas cliqué sur
+          « Envoyer ma demande ».
         </p>
         <h2>Mesure d’audience</h2>
         <p>
@@ -1354,17 +1817,19 @@ function RouteEffects() {
     const segment = pathname.split("/").filter(Boolean).pop();
     const item =
       products.find((p) => p.id === segment) ||
+      formations.find((f) => f.id === segment) ||
       services.find((s) => s.id === segment) ||
       projects.find((p) => p.id === segment);
     const labels = {
-      solutions: "Solutions SaaS",
+      solutions: "Nos logiciels à venir",
+      formations: "Formations",
       expertises: "Nos expertises",
       projets: "Nos projets",
       studio: "Le studio",
       contact: "Contact",
       confidentialite: "Confidentialité",
     };
-    document.title = `${item?.name || labels[segment] || "Studio digital & solutions SaaS"} — ProDigital`;
+    document.title = `${item?.name || labels[segment] || "Création web, conseil et assistance informatique"} — ProDigital`;
   }, [pathname]);
   return null;
 }
@@ -1391,6 +1856,8 @@ function Shell() {
           <Route path="/" element={<Home />} />
           <Route path="/solutions" element={<Catalog />} />
           <Route path="/solutions/:id" element={<ProductDetail />} />
+          <Route path="/formations" element={<FormationsCatalog />} />
+          <Route path="/formations/:id" element={<FormationDetail />} />
           <Route path="/expertises" element={<ExpertiseIndex />} />
           <Route path="/expertises/:id" element={<ServiceDetail />} />
           <Route path="/projets" element={<Projects />} />

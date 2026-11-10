@@ -6,7 +6,9 @@
 #     (le « :8080 » indique le port interne ; l'URL publique reste en 443/HTTPS)
 #   - Aucun port n'est publié sur l'hôte : seul le proxy de Coolify accède au conteneur.
 #
-# Application 100 % statique : pas de backend, pas de base de données, pas de volume.
+# Deux services : `site` (Nginx, fichiers statiques) et `api` (formulaire de contact).
+# L'API n'est pas exposée : seul Nginx la joint, sur /api/. Aucun volume : les demandes
+# vivent dans PostgreSQL (schéma `site`). Variables de l'API : voir .env.example.
 
 services:
   site:
@@ -32,4 +34,45 @@ services:
       interval: 30s
       timeout: 5s
       start_period: 10s
+      retries: 3
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+      args:
+        NODE_VERSION: ${NODE_VERSION:-22}
+    restart: unless-stopped
+    expose:
+      - "8788"
+    environment:
+      PORT: "8788"
+      # Obligatoire : base PostgreSQL (rôle `site_vitrine`, schéma `site`).
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL est requis pour le service api}
+      DATABASE_SSL: ${DATABASE_SSL:-}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://pro-digital.net,https://www.pro-digital.net}
+      PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:-https://pro-digital.net}
+      # Genesis CRM — secrets serveur uniquement.
+      GENESIS_URL: ${GENESIS_URL:-https://genesis.pro-digital.net}
+      GENESIS_SERVICE_TOKEN: ${GENESIS_SERVICE_TOKEN:-}
+      # Notification e-mail.
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-465}
+      SMTP_SECURITY: ${SMTP_SECURITY:-ssl}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      CONTACT_NOTIFY_TO: ${CONTACT_NOTIFY_TO:-contact@pro-digital.net}
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8788/api/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
       retries: 3

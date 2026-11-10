@@ -1,0 +1,25 @@
+{
+  "name": "prodigital-site-api",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "API du formulaire de contact ProDigital : enregistrement, notification e-mail et transmission à Genesis CRM.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "migrate": "node src/cli.js migrate",
+    "ops": "node src/cli.js",
+    "test": "node --test test/unit.test.js",
+    "test:e2e": "node test/e2e.mjs"
+  },
+  "dependencies": {
+    "nodemailer": "10.3.1",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "mailparser": "^3.14.3",
+    "smtp-server": "^3.21.4"
+  }
+}

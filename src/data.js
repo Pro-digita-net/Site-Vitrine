@@ -8,7 +8,7 @@ export const products = [
     status: "À venir",
     tagline: "Chaque relation mérite un suivi clair.",
     description:
-      "Centralisez vos prospects, vos clients et vos opportunités dans un même espace.",
+      "Un logiciel en préparation pour réunir vos contacts, vos opportunités commerciales et les actions à suivre.",
     icon: "users",
     featured: true,
     features: [
@@ -22,21 +22,21 @@ export const products = [
   {
     id: "orbit-itsm",
     name: "Orbit ITSM",
-    category: "Gestion IT",
+    category: "Gestion informatique",
     type: "itsm",
     status: "À venir",
-    tagline: "Votre activité IT, sous contrôle.",
+    tagline: "Un point de suivi pour vos demandes informatiques.",
     description:
-      "Organisez les tickets, les incidents et les actifs de votre environnement IT.",
+      "Un logiciel en préparation pour suivre les demandes d’assistance, les incidents et le matériel informatique.",
     icon: "layers",
     featured: true,
     features: [
       "Organisation des tickets et incidents",
-      "Suivi des services IT",
-      "Vue sur les actifs informatiques",
+      "Suivi des services informatiques",
+      "Inventaire du matériel informatique",
     ],
     audience:
-      "Pour les équipes IT qui souhaitent centraliser leurs demandes et mieux organiser leur travail quotidien.",
+      "Pour les équipes informatiques qui souhaitent retrouver les demandes en cours, leur statut et les équipements concernés.",
   },
   {
     id: "base-de-connaissances",
@@ -45,7 +45,7 @@ export const products = [
     type: "knowledge",
     status: "À venir",
     tagline: "Le savoir partagé. Le temps retrouvé.",
-    description: "Retrouvez vos procédures, guides et réponses utiles dans une base commune.",
+    description: "Un logiciel en préparation pour regrouper vos procédures, vos guides et les réponses aux questions fréquentes.",
     icon: "book",
     featured: true,
     features: ["Organisation des articles et procédures", "Recherche dans les connaissances", "Partage des bonnes pratiques"],
@@ -66,13 +66,13 @@ export const products = [
   },
   {
     id: "portail-client",
-    name: "Portail Client",
+    name: "Portail client",
     category: "Collaboration",
     type: "portal",
     status: "À venir",
     tagline: "Un espace commun. Des échanges simples.",
     description:
-      "Réunissez demandes, documents et échanges dans un espace dédié à vos clients.",
+      "Un espace client en préparation pour réunir les demandes, les documents partagés et les échanges liés à un projet.",
     icon: "folder",
     featured: false,
     features: [
@@ -91,33 +91,286 @@ export const products = [
     status: "À venir",
     tagline: "Moins de répétition. Plus de temps utile.",
     description:
-      "Simplifiez vos workflows, vos notifications et vos tâches métier récurrentes.",
+      "Un projet d’outil pour enchaîner des tâches répétitives : recevoir une demande, en préparer un résumé et prévenir la personne concernée.",
     icon: "workflow",
     featured: false,
     features: [
-      "Organisation des workflows",
-      "Automatisation des notifications",
-      "Assistants métier",
+      "Enchaînement de tâches à partir d’une demande",
+      "Notifications aux personnes concernées",
+      "Résumés assistés par IA, à vérifier avant utilisation",
     ],
     audience:
       "Pour les équipes qui identifient des tâches répétitives et souhaitent étudier une automatisation adaptée.",
   },
 ];
+
+// Catalogue de formations : mêmes champs que les logiciels (catalogue + page détail).
+// Contenus conçus avec l’assistance de l’IA, proposés à tarif accessible.
+export const formations = [
+  {
+    id: "bases-du-web",
+    name: "Bases du web",
+    category: "Création web",
+    type: "web",
+    status: "Petit prix",
+    price: "19 €",
+    tagline: "Comprendre comment un site est construit.",
+    description:
+      "Une formation courte pour découvrir le HTML, le CSS et l’organisation d’une page web, sans jargon inutile.",
+    icon: "monitor",
+    featured: true,
+    duration: "3 h",
+    format: "En ligne · à votre rythme",
+    features: [
+      "Structure d’une page HTML",
+      "Styles CSS essentiels",
+      "Bonnes pratiques de lisibilité",
+    ],
+    audience:
+      "Pour les débutants, les créateurs d’activité et toute personne qui souhaite comprendre le web avant de faire réaliser un site.",
+  },
+  {
+    id: "site-vitrine",
+    name: "Créer un site vitrine",
+    category: "Création web",
+    type: "web",
+    status: "Petit prix",
+    price: "29 €",
+    tagline: "De l’idée à une présence en ligne claire.",
+    description:
+      "Les étapes pour préparer, structurer et publier un site vitrine : pages utiles, contenus, parcours et mise en ligne.",
+    icon: "globe",
+    featured: true,
+    duration: "4 h",
+    format: "En ligne · à votre rythme",
+    features: [
+      "Définir les pages et le message",
+      "Organiser le parcours visiteur",
+      "Préparer la publication",
+    ],
+    audience:
+      "Pour les indépendants et les TPE qui veulent lancer ou refondre un site vitrine avec méthode.",
+  },
+  {
+    id: "wordpress-essentiel",
+    name: "WordPress essentiel",
+    category: "Création web",
+    type: "cms",
+    status: "Petit prix",
+    price: "29 €",
+    tagline: "Gérer votre site sans dépendre de personne.",
+    description:
+      "Prise en main de WordPress : pages, articles, médias, menus et gestes utiles pour faire évoluer votre site au quotidien.",
+    icon: "layout",
+    featured: true,
+    duration: "3 h 30",
+    format: "En ligne · à votre rythme",
+    features: [
+      "Pages, articles et médias",
+      "Menus et réglages utiles",
+      "Gestes de maintenance simples",
+    ],
+    audience:
+      "Pour les personnes qui héritent d’un site WordPress ou souhaitent le faire évoluer en autonomie.",
+  },
+  {
+    id: "excel-quotidien",
+    name: "Excel du quotidien",
+    category: "Bureautique",
+    type: "office",
+    status: "Petit prix",
+    price: "19 €",
+    tagline: "Des tableaux utiles, sans complexité.",
+    description:
+      "Les bases d’Excel pour classer, calculer et présenter des informations utiles au travail quotidien.",
+    icon: "table",
+    featured: true,
+    duration: "3 h",
+    format: "En ligne · à votre rythme",
+    features: [
+      "Organisation des données",
+      "Formules essentielles",
+      "Tableaux et filtres",
+    ],
+    audience:
+      "Pour les collaborateurs qui manipulent des listes, des suivis ou des bilans simples dans Excel.",
+  },
+  {
+    id: "microsoft-365",
+    name: "Microsoft 365 au travail",
+    category: "Bureautique",
+    type: "office",
+    status: "Petit prix",
+    price: "24 €",
+    tagline: "Outlook, Teams et OneDrive, sans friction.",
+    description:
+      "Une formation pratique pour mieux utiliser la messagerie, les réunions et le partage de fichiers dans Microsoft 365.",
+    icon: "mail",
+    featured: false,
+    duration: "3 h",
+    format: "En ligne · à votre rythme",
+    features: [
+      "Messagerie et organisation",
+      "Réunions et collaboration",
+      "Fichiers partagés et versions",
+    ],
+    audience:
+      "Pour les équipes qui utilisent Microsoft 365 et souhaitent gagner du temps sur les gestes du quotidien.",
+  },
+  {
+    id: "securite-numerique",
+    name: "Sécurité numérique",
+    category: "Sécurité",
+    type: "security",
+    status: "Petit prix",
+    price: "19 €",
+    tagline: "Les bons réflexes face aux risques courants.",
+    description:
+      "Reconnaître le phishing, protéger ses comptes et adopter les gestes essentiels pour limiter les incidents au quotidien.",
+    icon: "shield",
+    featured: true,
+    duration: "2 h 30",
+    format: "En ligne · à votre rythme",
+    features: [
+      "Mots de passe et double authentification",
+      "Repérer les tentatives de fraude",
+      "Réagir en cas d’incident",
+    ],
+    audience:
+      "Pour tous les utilisateurs qui souhaitent réduire les risques liés aux e-mails, aux comptes et aux appareils.",
+  },
+  {
+    id: "ia-au-travail",
+    name: "L’IA au travail",
+    category: "Intelligence artificielle",
+    type: "ai",
+    status: "Petit prix",
+    price: "24 €",
+    tagline: "Demander mieux. Gagner du temps.",
+    description:
+      "Apprendre à utiliser ChatGPT et les assistants IA pour rédiger, résumer et préparer des tâches, avec un regard critique sur les résultats.",
+    icon: "sparkles",
+    featured: true,
+    duration: "3 h",
+    format: "En ligne · à votre rythme",
+    features: [
+      "Formuler des demandes efficaces",
+      "Rédiger et résumer plus vite",
+      "Vérifier et corriger les réponses",
+    ],
+    audience:
+      "Pour les professionnels qui veulent intégrer l’IA dans leur travail sans perdre le contrôle sur le contenu produit.",
+  },
+  {
+    id: "support-premier-niveau",
+    name: "Support IT de premier niveau",
+    category: "Assistance IT",
+    type: "support",
+    status: "Petit prix",
+    price: "29 €",
+    tagline: "Diagnostiquer. Orienter. Débloquer.",
+    description:
+      "Les gestes essentiels pour analyser une panne simple, guider un utilisateur et savoir quand transmettre à un spécialiste.",
+    icon: "headphones",
+    featured: false,
+    duration: "4 h",
+    format: "En ligne · à votre rythme",
+    features: [
+      "Recueillir les bons éléments",
+      "Vérifications de base",
+      "Suivi et escalade",
+    ],
+    audience:
+      "Pour les référents informatiques, les assistants et les personnes qui assistent déjà leurs collègues au quotidien.",
+  },
+  {
+    id: "rgpd-essentiel",
+    name: "RGPD essentiel",
+    category: "Conformité",
+    type: "data",
+    status: "Petit prix",
+    price: "19 €",
+    tagline: "Les bases pour traiter les données correctement.",
+    description:
+      "Comprendre les principes du RGPD appliqués aux petites structures : formulaires, conservation, droits des personnes.",
+    icon: "lock",
+    featured: false,
+    duration: "2 h 30",
+    format: "En ligne · à votre rythme",
+    features: [
+      "Principes et vocabulaire utiles",
+      "Formulaires et consentement",
+      "Droits des personnes",
+    ],
+    audience:
+      "Pour les indépendants et les TPE qui collectent des données via un site, un formulaire ou un outil métier.",
+  },
+  {
+    id: "automatiser-avec-ia",
+    name: "Automatiser avec l’IA",
+    category: "Productivité",
+    type: "ai",
+    status: "Petit prix",
+    price: "29 €",
+    tagline: "Moins de tâches répétitives. Plus de temps utile.",
+    description:
+      "Identifier les tâches répétitives et les enchaîner avec l’aide de l’IA : résumés, préparations de messages, check-lists.",
+    icon: "workflow",
+    featured: false,
+    duration: "3 h 30",
+    format: "En ligne · à votre rythme",
+    features: [
+      "Repérer les tâches à automatiser",
+      "Construire des enchaînements simples",
+      "Contrôler le résultat avant envoi",
+    ],
+    audience:
+      "Pour les personnes qui perdent du temps sur des tâches répétitives et souhaitent tester une automatisation légère.",
+  },
+];
+
 export const services = [
   {
     id: "creation-web",
     name: "Création web",
     icon: "monitor",
     number: "01",
-    short: "Des sites singuliers. Des expériences évidentes.",
+    short: "Une présence digitale à votre image, conçue pour vos objectifs.",
+    teaser: "Sites modernes, performants et pensés pour valoriser votre activité.",
     tags: ["Sites vitrines", "E-commerce", "Sur mesure"],
     description:
-      "Site vitrine, boutique en ligne ou projet sur mesure : une présence web pensée pour votre activité, vos utilisateurs et vos objectifs. Du premier échange à la mise en ligne, chaque détail a sa place.",
+      "Nous concevons des sites internet modernes, performants et adaptés à votre activité. Chaque projet est pensé pour valoriser votre entreprise, offrir une expérience fluide à vos visiteurs et faciliter la prise de contact.",
     deliverables: [
-      "Cadrage du projet et de ses objectifs",
-      "Architecture de contenu et parcours",
-      "Direction artistique et interfaces responsive",
-      "Développement et préparation au lancement",
+      {
+        title: "Sites vitrines professionnels",
+        description:
+          "Un site clair pour présenter votre activité, vos services et faciliter la prise de contact.",
+      },
+      {
+        title: "Sites e-commerce",
+        description:
+          "Une boutique en ligne pour présenter vos produits, gérer les commandes et accompagner vos ventes.",
+      },
+      {
+        title: "Refonte et modernisation",
+        description:
+          "Mise à jour de votre site existant : design, structure, lisibilité et expérience mobile.",
+      },
+      {
+        title: "Développement web sur mesure",
+        description:
+          "Des pages ou fonctionnalités spécifiques adaptées à votre métier, au-delà d’un modèle standard.",
+      },
+      {
+        title: "Optimisation mobile, performance et SEO",
+        description:
+          "Un site rapide, agréable sur mobile et mieux préparé pour être trouvé sur les moteurs de recherche.",
+      },
+      {
+        title: "Mise en ligne, maintenance et évolutions",
+        description:
+          "Publication du site, suivi après lancement et évolutions selon vos besoins.",
+      },
     ],
     questions: [
       "Vous lancez une activité ou une nouvelle offre ?",
@@ -127,45 +380,120 @@ export const services = [
   },
   {
     id: "conseil-it",
-    name: "Conseil IT",
+    name: "Conseil IT & Formation",
     icon: "layers",
     number: "02",
-    short: "Des choix éclairés. Une direction claire.",
-    tags: ["Mini-audit", "Conseil", "Formation"],
+    short: "Les bons outils, les bonnes décisions, les bonnes pratiques.",
+    teaser: "Choisir vos outils, optimiser votre environnement et monter en compétence.",
+    tags: ["Audit", "Conseil", "Formations"],
     description:
-      "Un mini-audit pour faire le point, du conseil pour choisir les bons outils et des formations pour mieux les utiliser. Un accompagnement concret, adapté à votre niveau et à votre activité.",
+      "Nous accompagnons les professionnels dans leurs choix technologiques, l’amélioration de leur environnement informatique et le développement de leurs compétences numériques.",
     deliverables: [
-      "Mini-audit de vos outils et de votre environnement",
-      "Identification des priorités",
-      "Recommandations et choix de solutions",
-      "Formation et prise en main de vos outils",
+      {
+        title: "Diagnostic et audit informatique",
+        description:
+          "Un état des lieux de vos outils, usages et points de friction pour identifier les priorités.",
+      },
+      {
+        title: "Conseil en équipements et logiciels",
+        description:
+          "Des recommandations concrètes pour choisir ou faire évoluer vos postes, logiciels et services.",
+      },
+      {
+        title: "Optimisation des outils de travail",
+        description:
+          "Réorganisation des usages du quotidien pour gagner en clarté, en temps et en fiabilité.",
+      },
+      {
+        title: "Accompagnement à la transformation digitale",
+        description:
+          "Un cadrage progressif pour faire évoluer vos méthodes et vos outils sans tout bouleverser.",
+      },
+      {
+        title: "Sensibilisation aux risques numériques",
+        description:
+          "Les bons réflexes face au phishing, aux mots de passe et aux incidents courants.",
+      },
+      {
+        title: "Formations Excel, bureautique et cybersécurité du quotidien",
+        description:
+          "Des parcours courts et accessibles pour monter en compétence, seuls ou en équipe.",
+      },
     ],
     questions: [
       "Vos outils répondent-ils encore à vos besoins ?",
       "Vous devez choisir ou faire évoluer une solution ?",
-      "Vous souhaitez clarifier les étapes de votre projet IT ?",
+      "Vous souhaitez former vos équipes ou monter en compétence ?",
     ],
   },
   {
     id: "support-it",
-    name: "Support IT",
+    name: "Support & Assistance IT",
     icon: "headphones",
     number: "03",
-    short: "Des outils fiables. Un quotidien plus serein.",
-    tags: ["Helpdesk N1", "Assistance", "Suivi"],
+    short: "Un problème informatique ne devrait pas freiner votre activité.",
+    teaser: "Assistance adaptée pour garder vos outils opérationnels au quotidien.",
+    tags: ["Diagnostic", "Assistance", "Suivi"],
     description:
-      "Un helpdesk de niveau 1 pour les difficultés informatiques du quotidien : accès, postes de travail et utilisation des logiciels. Les demandes sont qualifiées, suivies et orientées vers le bon interlocuteur si nécessaire.",
+      "Nous aidons les professionnels à résoudre leurs difficultés informatiques et à maintenir leurs outils opérationnels grâce à une assistance adaptée à leurs besoins.",
     deliverables: [
-      "Qualification des demandes et des incidents",
-      "Assistance à l’utilisation des outils",
-      "Suivi des interventions",
-      "Orientation des incidents nécessitant un niveau d’expertise supérieur",
+      {
+        title: "Diagnostic et résolution d’incidents",
+        description:
+          "Analyse du problème, vérification des causes probables et actions pour rétablir le service.",
+      },
+      {
+        title: "Assistance à distance ou sur site selon disponibilité",
+        description:
+          "Une aide adaptée à la situation : prise en main à distance ou intervention sur place si nécessaire.",
+      },
+      {
+        title: "Configuration des logiciels et messageries",
+        description:
+          "Mise en place et réglages des outils du quotidien : messagerie, accès, applications métier.",
+      },
+      {
+        title: "Installation et paramétrage des postes",
+        description:
+          "Préparation des ordinateurs, comptes utilisateurs et logiciels pour un démarrage serein.",
+      },
+      {
+        title: "Maintenance et optimisation informatique",
+        description:
+          "Entretien régulier et ajustements pour limiter les pannes et garder un environnement stable.",
+      },
+      {
+        title: "Suivi des demandes et accompagnement utilisateurs",
+        description:
+          "Un suivi clair des demandes et une aide pour que chacun retrouve ses marques sur les outils.",
+      },
     ],
     questions: [
       "Des incidents perturbent votre activité ?",
       "Vos équipes ont besoin d’un accompagnement ?",
       "Vous souhaitez mieux organiser le suivi de vos outils ?",
     ],
+  },
+];
+
+export const expertiseSituations = [
+  {
+    id: "lancement",
+    title: "Vous lancez votre activité ?",
+    description:
+      "Nous vous aidons à construire votre présence en ligne et à choisir vos premiers outils numériques.",
+  },
+  {
+    id: "croissance",
+    title: "Votre entreprise se développe ?",
+    description:
+      "Nous accompagnons l’évolution de vos équipements, logiciels et méthodes de travail.",
+  },
+  {
+    id: "incidents",
+    title: "Vous rencontrez des difficultés informatiques ?",
+    description:
+      "Nous vous aidons à identifier les problèmes, trouver des solutions et limiter leur réapparition.",
   },
 ];
 export const projects = [
@@ -179,11 +507,11 @@ export const projects = [
     description:
       "Un concept de portfolio architectural qui donne toute sa place aux images et à la découverte des projets.",
     challenge:
-      "Présenter un univers architectural avec une navigation claire et des visuels capables de raconter chaque réalisation.",
+      "Le besoin imaginé : permettre à un visiteur de découvrir le travail d’un atelier d’architecture. La difficulté : laisser de la place aux photographies tout en gardant des repères pour parcourir les projets. Ce concept explore cet équilibre, sans représenter une commande client.",
     choices: [
-      "Photographies grand format et hiérarchie éditoriale",
-      "Navigation épurée pour découvrir les projets",
-      "Déclinaison des interfaces sur ordinateur et mobile",
+      "Des photographies grand format pour mettre les réalisations au premier plan",
+      "Des titres et une navigation épurés pour guider la découverte des projets",
+      "Une présentation adaptée au mobile pour conserver la lisibilité des images et des textes",
     ],
   },
   {
@@ -196,11 +524,11 @@ export const projects = [
     description:
       "Un concept d’espace de travail pour centraliser le suivi des projets et rendre les priorités visibles.",
     challenge:
-      "Rassembler les informations de suivi dans une interface organisée, facile à parcourir au quotidien.",
+      "Le besoin imaginé : retrouver les projets en cours et les tâches à suivre dans un même espace. La difficulté : rendre les priorités visibles sans surcharger l’écran. Ce concept d’interface explore une organisation de l’information, sans représenter un logiciel livré à un client.",
     choices: [
-      "Vue d’ensemble des projets et des tâches",
-      "Statuts visuels pour faciliter la lecture",
-      "Navigation latérale et regroupement des informations",
+      "Une vue d’ensemble pour repérer les projets et les tâches à suivre",
+      "Des statuts distincts pour identifier ce qui est en cours ou terminé",
+      "Une navigation latérale pour accéder aux informations par rubrique",
     ],
   },
 ];

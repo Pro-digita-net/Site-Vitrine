@@ -6,12 +6,15 @@
 .vscode
 .idea
 node_modules
+**/node_modules
+server/test
 dist
 *.log
 .env
 .env.*
 !.env.example
 Dockerfile
+Dockerfile.api
 .dockerignore
 docker-compose*.yml
 README.md
