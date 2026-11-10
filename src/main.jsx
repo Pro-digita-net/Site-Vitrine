@@ -445,6 +445,7 @@ function ServiceCards() {
   );
 }
 function Method() {
+  const [hoveredStep, setHoveredStep] = useState(null);
   return (
     <section className="method section">
       <div className="container">
@@ -456,7 +457,12 @@ function Method() {
             <em>à la prochaine étape.</em>
           </h2>
         </div>
-        <div className="method-grid">
+        <div
+          className="method-grid"
+          onPointerLeave={() => setHoveredStep(null)}
+          style={{ "--method-hover": hoveredStep === null ? undefined : hoveredStep / 3 }}
+        >
+          <div className="method-path" aria-hidden="true"><span className="method-path-fill" /></div>
           {[
             [
               "Écouter",
@@ -469,10 +475,18 @@ function Method() {
             ["Réaliser", "Construire, vérifier et préparer la mise en ligne."],
             ["Accompagner", "Faire évoluer vos outils avec votre activité."],
           ].map(([title, description], i) => (
-            <div key={title}>
+            <div
+              key={title}
+              className={`method-step${hoveredStep === i ? " is-active" : ""}`}
+              onPointerEnter={(event) => { if (event.pointerType !== "touch") setHoveredStep(i); }}
+              style={{ "--hover-reached": hoveredStep === null ? undefined : Number(i <= hoveredStep) }}
+            >
+              <span className="method-node" aria-hidden="true" />
+              <div className="method-step-copy">
               <span className="step-index">0{i + 1}</span>
               <h3>{title}</h3>
               <p>{description}</p>
+              </div>
             </div>
           ))}
         </div>

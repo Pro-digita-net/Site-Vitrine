@@ -38,7 +38,6 @@ const SCROLL_GROUPS = [
   ".section-heading .eyebrow, .section-heading > p, .section-heading > .quiet-link, .section-intro",
   ".services-grid > *",
   ".projects-grid > *",
-  ".method-grid > *",
   ".home-solutions .products-grid > *",
   ".catalog-footer",
   ".catalog-controls, .filter-list",
@@ -299,6 +298,36 @@ function magneticButtons() {
   return () => cleanups.forEach((fn) => fn());
 }
 
+function methodProgress() {
+  gsap.utils.toArray(".method-grid").forEach((grid) => {
+    const steps = grid.querySelectorAll(".method-step");
+    const nodes = grid.querySelectorAll(".method-node");
+    gsap.set(grid, { "--method-progress": 0 });
+    gsap.set(nodes, { "--reached": 0 });
+    const timeline = gsap.timeline({
+      scrollTrigger: { trigger: grid, start: "top 82%", once: true },
+    });
+    timeline.from(steps, { opacity: 0, y: 16, duration: 0.65, stagger: 0.12, ease: "power2.out" }, 0);
+    nodes.forEach((node, index) => {
+      const arrival = 0.35 + index * 0.95;
+      if (index > 0) {
+        timeline.to(grid, {
+          "--method-progress": index / 3,
+          duration: 0.85,
+          ease: "power2.inOut",
+        }, arrival - 0.85);
+      }
+      timeline.to(node, { "--reached": 1, duration: 0.4, ease: "back.out(2)" }, arrival);
+      timeline.fromTo(node, { "--bloom": 0 }, {
+        "--bloom": 1, duration: 0.85, ease: "power2.out",
+      }, arrival);
+      timeline.fromTo(steps[index].querySelector(".step-index"),
+        { opacity: 0.45, y: 5 },
+        { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, arrival);
+    });
+  });
+}
+
 /**
  * Orchestration des animations d’une page. À appeler une fois, sous le routeur :
  * tout est recréé à chaque changement de route et nettoyé automatiquement.
@@ -322,6 +351,7 @@ export function usePageMotion(pathname) {
       const mm = gsap.matchMedia();
       mm.add(MOTION_OK, () => {
         intro();
+        methodProgress();
         const cleanups = [heroDepth(), scrollReveals(), magneticButtons()];
 
         // La hauteur de page évolue (images, filtres, formulaire) : on recale les déclencheurs.
