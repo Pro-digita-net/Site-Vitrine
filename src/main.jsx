@@ -38,6 +38,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import { products, services, projects, contactEmail } from "./data";
+import { usePageMotion } from "./motion";
 import "./styles.css";
 
 const icons = {
@@ -502,15 +503,16 @@ function Home() {
             </Link>
           </div>
         </div>
-        <div className="hero-mobile-foot"><p>Des sites qui vous ressemblent.<br />Des outils qui vous simplifient la vie.</p><button type="button" onClick={() => document.getElementById("home-offers")?.scrollIntoView({ behavior: "instant" })}><span>Faites<br />défiler</span><ArrowDown size={18} /></button></div><div className="hero-art">
-          
-          <img
-            src="/assets/brand/connexion-office.webp"
-            srcSet="/assets/brand/connexion-office-640.webp 640w, /assets/brand/connexion-office.webp 1254w"
-            sizes="(max-width: 680px) calc(100vw - 40px), (max-width: 1400px) 46vw, 600px"
-            alt="Sculpture ProDigital en métal bleu sur un bureau, dans un atelier lumineux"
-            fetchPriority="high"
-          />
+        <div className="hero-mobile-foot"><p>Des sites qui vous ressemblent.<br />Des outils qui vous simplifient la vie.</p><button type="button" onClick={() => document.getElementById("home-offers")?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" })}><span>Faites<br />défiler</span><ArrowDown size={18} /></button></div><div className="hero-art">
+          <div className="hero-frame">
+            <img
+              src="/assets/brand/connexion-office.webp"
+              srcSet="/assets/brand/connexion-office-640.webp 640w, /assets/brand/connexion-office.webp 1254w"
+              sizes="(max-width: 680px) calc(100vw - 40px), (max-width: 1400px) 46vw, 600px"
+              alt="Sculpture ProDigital en métal bleu sur un bureau, dans un atelier lumineux"
+              fetchPriority="high"
+            />
+          </div>
           <div className="art-note"><span className="art-note-symbol"><ArrowUpRight size={20} /></span><div>Relier les idées.<br /><strong>Créer l’essentiel.</strong></div></div>
           <div className="art-caption">
             <span>DU CONCEPT AU CONCRET</span>
@@ -583,6 +585,7 @@ function Home() {
                   src={project.image}
                   alt={`Interface du concept ${project.name}`}
                   loading="lazy"
+                  decoding="async"
                 />
                 <span className="project-badge">PROJET CONCEPT</span>
                 <span className="round-arrow">
@@ -1016,7 +1019,7 @@ function Projects() {
                 Découvrir le projet <Arrow />
               </span>
             </div>
-            <img src={p.image} alt={`Aperçu du concept ${p.name}`} />
+            <img src={p.image} alt={`Aperçu du concept ${p.name}`} decoding="async" />
           </Link>
         ))}
       </section>
@@ -1334,7 +1337,6 @@ function NotFound() {
 function RouteEffects() {
   const { pathname } = useLocation();
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "instant" });
     const segment = pathname.split("/").filter(Boolean).pop();
     const item =
       products.find((p) => p.id === segment) ||
@@ -1352,9 +1354,11 @@ function RouteEffects() {
   }, [pathname]);
   return null;
 }
-function App() {
+function Shell() {
+  const location = useLocation();
+  usePageMotion(location.pathname);
   return (
-    <HashRouter>
+    <>
       <RouteEffects />
       <a
         className="skip-link"
@@ -1368,7 +1372,8 @@ function App() {
       </a>
       <Header />
       <main id="main" tabIndex={-1}>
-        <Routes>
+        {/* La clé remonte la page à chaque navigation : les animations repartent d’un DOM neuf. */}
+        <Routes location={location} key={location.pathname}>
           <Route path="/" element={<Home />} />
           <Route path="/solutions" element={<Catalog />} />
           <Route path="/solutions/:id" element={<ProductDetail />} />
@@ -1383,6 +1388,13 @@ function App() {
         </Routes>
       </main>
       <Footer />
+    </>
+  );
+}
+function App() {
+  return (
+    <HashRouter>
+      <Shell />
     </HashRouter>
   );
 }
