@@ -35,6 +35,7 @@ import {
   MessageSquare,
   CircleHelp,
   Sparkles,
+  BookOpen,
 } from "lucide-react";
 import { products, services, projects, contactEmail } from "./data";
 import "./styles.css";
@@ -46,6 +47,8 @@ const icons = {
   users: Users,
   folder: Folder,
   workflow: Workflow,
+  book: BookOpen,
+  file: FileText,
 };
 function Icon({ name, ...props }) {
   const Component = icons[name] || Layers;
@@ -117,7 +120,7 @@ function Header() {
           <NavLink to="/expertises">Expertises</NavLink>
           <NavLink to="/projets">Projets</NavLink>
           <NavLink to="/solutions">
-            Nos SaaS <span className="nav-tag">Explorer</span>
+            Nos SaaS <span className="nav-tag">À venir</span>
           </NavLink>
           <Link className="mobile-contact" to="/contact">
             Contact
@@ -237,7 +240,11 @@ function ProductPreview({ type = "crm", large = false }) {
                 ? "Orbit"
                 : type === "portal"
                   ? "Votre espace"
-                  : "Automatisations"}
+                  : type === "knowledge"
+                    ? "Connaissances"
+                    : type === "invoice"
+                      ? "Facturation"
+                      : "Automatisations"}
             <small> / Vue d’ensemble</small>
           </span>
           <Bell size={12} />
@@ -318,6 +325,25 @@ function ProductPreview({ type = "crm", large = false }) {
             </div>
           </div>
         )}
+        {type === "knowledge" && (
+          <div className="preview-body knowledge-body">
+            <div className="preview-heading">Une réponse à portée de main.<BookOpen size={13} /></div>
+            <div className="knowledge-search"><Search size={11} /> Rechercher un article, une procédure…</div>
+            <div className="knowledge-topics"><span>Premiers pas</span><span>Outils & accès</span><span>Procédures</span></div>
+            {["Bien démarrer avec vos outils", "Configurer votre espace de travail", "Les réponses aux questions fréquentes"].map((title) => (
+              <div className="knowledge-row" key={title}><FileText size={12} /><span>{title}</span><ChevronRight size={12} /></div>
+            ))}
+          </div>
+        )}
+        {type === "invoice" && (
+          <div className="preview-body invoice-body">
+            <div className="preview-heading">Chaque facture, au bon endroit.<span className="mini-pill">Ce mois-ci</span></div>
+            <div className="invoice-summary"><span>Montant facturé<strong>4 250,00 €</strong></span><span className="invoice-stamp"><Check size={12} /> À jour</span></div>
+            {[["FAC-001", "1 800,00 €", "Réglée"], ["FAC-002", "1 250,00 €", "Envoyée"], ["FAC-003", "1 200,00 €", "Brouillon"]].map(([ref, amount, status], i) => (
+              <div className="invoice-row" key={ref}><span>{ref}</span><strong>{amount}</strong><span className={`status status-${[2, 0, 1][i]}`}>{status}</span></div>
+            ))}
+          </div>
+        )}
         {type === "portal" && (
           <div className="preview-body">
             <div className="preview-heading">Bienvenue dans votre espace.</div>
@@ -378,7 +404,7 @@ function ProductCard({ product }) {
         <span className="preview-label">Aperçu illustratif</span>
       </div>
       <div className="product-info">
-        <span className="category-label">{product.category}</span>
+        <div className="product-meta"><span className="category-label">{product.category}</span><span className="availability"><i />{product.status}</span></div>
         <div className="product-title">
           <h3>{product.name}</h3>
           <span className="round-arrow">
@@ -408,6 +434,7 @@ function ServiceCards() {
           </div>
           <h3>{service.name}</h3>
           <p>{service.short}</p>
+          <div className="service-tags">{service.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
           <span className="text-link">
             Explorer cette expertise <Arrow />
           </span>
@@ -461,34 +488,40 @@ function Home() {
           <h1>
             Le digital
             <br />
-            prend <em>forme.</em>
+            <span className="hero-verb">prend</span> <em>forme.</em>
           </h1>
           <p className="hero-italic">L’IT suit le mouvement.</p>
           <p className="hero-description">
-            Création web, conseil et support IT.
-            <br />
-            Des solutions pour votre quotidien.
+            Un site qui vous ressemble. Une informatique qui vous simplifie la vie.
+            Création web, conseil et support IT : avançons ensemble.
           </p>
           <div className="hero-actions">
             <Button />
-            <Link className="quiet-link" to="/solutions">
-              Explorer nos SaaS <ArrowDown size={16} />
+            <Link className="quiet-link" to="/expertises">
+              Découvrir nos expertises <ArrowUpRight size={16} />
             </Link>
           </div>
         </div>
-        <div className="hero-art">
-          <span className="art-orbit" aria-hidden="true" />
+        <div className="hero-mobile-foot"><p>Des sites qui vous ressemblent.<br />Des outils qui vous simplifient la vie.</p><button type="button" onClick={() => document.getElementById("home-offers")?.scrollIntoView({ behavior: "instant" })}><span>Faites<br />défiler</span><ArrowDown size={18} /></button></div><div className="hero-art">
+          
           <img
             src="/assets/brand/connexion-office.webp"
+            srcSet="/assets/brand/connexion-office-640.webp 640w, /assets/brand/connexion-office.webp 1254w"
+            sizes="(max-width: 680px) calc(100vw - 40px), (max-width: 1400px) 46vw, 600px"
             alt="Sculpture ProDigital en métal bleu sur un bureau, dans un atelier lumineux"
             fetchPriority="high"
           />
+          <div className="art-note"><span className="art-note-symbol"><ArrowUpRight size={20} /></span><div>Relier les idées.<br /><strong>Créer l’essentiel.</strong></div></div>
           <div className="art-caption">
             <span>DU CONCEPT AU CONCRET</span>
             <span>ProDigital — Studio</span>
           </div>
         </div>
       </section>
+      <div id="home-offers" className="offer-strip container" aria-label="Nos domaines d’intervention">
+        <span>À VOS CÔTÉS,<br /><strong>À CHAQUE ÉTAPE.</strong></span>
+        {services.map((service) => <Link key={service.id} to={`/expertises/${service.id}`}><Icon name={service.icon} /><span>{service.name}<small>{service.tags.join(" · ")}</small></span><Arrow /></Link>)}
+      </div>
       <section className="vision container">
         <Eyebrow number="02">NOTRE VISION</Eyebrow>
         <div>
@@ -577,9 +610,9 @@ function Home() {
           </div>
           <div className="section-intro">
             <p>
-              Relation client, gestion IT, collaboration, automatisation.
-              Explorez nos solutions par usage et trouvez celle qui répond à
-              votre besoin.
+              CRM, ITSM, base de connaissances, facturation…
+              Nous préparons des outils pour simplifier votre quotidien.
+              Découvrez les solutions à venir.
             </p>
             <Link className="quiet-link" to="/solutions">
               Tout le catalogue <Arrow />
@@ -650,9 +683,10 @@ function Catalog() {
           <em>le bon outil.</em>
         </h1>
         <p>
-          Des solutions pour structurer votre activité, fluidifier vos échanges
-          <br className="desktop-break" /> et gagner du temps au quotidien.
+          Notre écosystème se construit : CRM, ITSM, connaissances et facturation.
+          <br className="desktop-break" /> Découvrez nos futurs outils et partagez vos besoins.
         </p>
+        <div className="catalog-notice"><span className="availability"><i />Solutions à venir</span><span>Des aperçus pour découvrir notre vision. Les dates de lancement seront annoncées ici.</span></div>
       </section>
       <section className="container catalog-content">
         <div className="catalog-controls">
@@ -759,14 +793,14 @@ function ProductDetail() {
       />
       <section className="container product-detail-hero">
         <div>
-          <span className="category-label">{product.category}</span>
+          <div className="product-meta detail-meta"><span className="category-label">{product.category}</span><span className="availability"><i />{product.status}</span></div>
           <h1>{product.name}</h1>
           <h2>
             <em>{product.tagline}</em>
           </h2>
           <p>{product.description}</p>
           <Button to={`/contact?solution=${encodeURIComponent(product.name)}`}>
-            Échanger sur cette solution
+            Discuter de mon besoin
           </Button>
         </div>
         <div className="detail-preview">
@@ -799,9 +833,9 @@ function ProductDetail() {
       <section className="container product-disclaimer">
         <CircleHelp />
         <p>
-          Les aperçus présentent le principe de la solution. Échangeons pour
-          préciser les fonctionnalités, les intégrations, les modalités et la
-          disponibilité adaptées à votre projet.
+          Cette solution est à venir. Les interfaces et les données sont illustratives ;
+          les fonctionnalités présentées décrivent la direction envisagée.
+          Contactez-nous pour partager vos besoins et échanger sur le projet.
         </p>
       </section>
       <section className="container section">

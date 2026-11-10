@@ -5,6 +5,7 @@ export const products = [
     name: "Genesis CRM",
     category: "Relation client",
     type: "crm",
+    status: "À venir",
     tagline: "Chaque relation mérite un suivi clair.",
     description:
       "Centralisez vos prospects, vos clients et vos opportunités dans un même espace.",
@@ -23,6 +24,7 @@ export const products = [
     name: "Orbit ITSM",
     category: "Gestion IT",
     type: "itsm",
+    status: "À venir",
     tagline: "Votre activité IT, sous contrôle.",
     description:
       "Organisez les tickets, les incidents et les actifs de votre environnement IT.",
@@ -37,15 +39,42 @@ export const products = [
       "Pour les équipes IT qui souhaitent centraliser leurs demandes et mieux organiser leur travail quotidien.",
   },
   {
+    id: "base-de-connaissances",
+    name: "Base de connaissances",
+    category: "Connaissances",
+    type: "knowledge",
+    status: "À venir",
+    tagline: "Le savoir partagé. Le temps retrouvé.",
+    description: "Retrouvez vos procédures, guides et réponses utiles dans une base commune.",
+    icon: "book",
+    featured: true,
+    features: ["Organisation des articles et procédures", "Recherche dans les connaissances", "Partage des bonnes pratiques"],
+    audience: "Pour les équipes qui souhaitent rendre leur savoir accessible et éviter de répondre plusieurs fois aux mêmes questions.",
+  },
+  {
+    id: "facturation",
+    name: "Facturation",
+    category: "Gestion d’activité",
+    type: "invoice",
+    status: "À venir",
+    tagline: "Vos factures, en toute simplicité.",
+    description: "Un futur outil pour préparer vos devis, créer vos factures et suivre vos règlements.",
+    icon: "file",
+    featured: true,
+    features: ["Préparation des devis", "Création des factures", "Suivi des règlements"],
+    audience: "Pour les indépendants et les petites entreprises qui souhaitent simplifier leur gestion administrative au quotidien.",
+  },
+  {
     id: "portail-client",
     name: "Portail Client",
     category: "Collaboration",
     type: "portal",
+    status: "À venir",
     tagline: "Un espace commun. Des échanges simples.",
     description:
       "Réunissez demandes, documents et échanges dans un espace dédié à vos clients.",
     icon: "folder",
-    featured: true,
+    featured: false,
     features: [
       "Centralisation des demandes",
       "Accès aux documents",
@@ -59,11 +88,12 @@ export const products = [
     name: "Automatisation & IA",
     category: "Automatisation",
     type: "flow",
+    status: "À venir",
     tagline: "Moins de répétition. Plus de temps utile.",
     description:
       "Simplifiez vos workflows, vos notifications et vos tâches métier récurrentes.",
     icon: "workflow",
-    featured: true,
+    featured: false,
     features: [
       "Organisation des workflows",
       "Automatisation des notifications",
@@ -80,8 +110,9 @@ export const services = [
     icon: "monitor",
     number: "01",
     short: "Des sites singuliers. Des expériences évidentes.",
+    tags: ["Sites vitrines", "E-commerce", "Sur mesure"],
     description:
-      "Un site pensé pour votre activité, vos utilisateurs et vos objectifs. De la première idée à la mise en ligne, nous donnons une forme claire à votre présence digitale.",
+      "Site vitrine, boutique en ligne ou projet sur mesure : une présence web pensée pour votre activité, vos utilisateurs et vos objectifs. Du premier échange à la mise en ligne, chaque détail a sa place.",
     deliverables: [
       "Cadrage du projet et de ses objectifs",
       "Architecture de contenu et parcours",
@@ -100,13 +131,14 @@ export const services = [
     icon: "layers",
     number: "02",
     short: "Des choix éclairés. Une direction claire.",
+    tags: ["Mini-audit", "Conseil", "Formation"],
     description:
-      "Prenez du recul sur vos outils et vos besoins. Nous vous accompagnons pour identifier les priorités et construire une trajectoire technologique cohérente avec votre activité.",
+      "Un mini-audit pour faire le point, du conseil pour choisir les bons outils et des formations pour mieux les utiliser. Un accompagnement concret, adapté à votre niveau et à votre activité.",
     deliverables: [
-      "Analyse de vos besoins et de votre environnement",
+      "Mini-audit de vos outils et de votre environnement",
       "Identification des priorités",
       "Recommandations et choix de solutions",
-      "Plan d’action et accompagnement du projet",
+      "Formation et prise en main de vos outils",
     ],
     questions: [
       "Vos outils répondent-ils encore à vos besoins ?",
@@ -120,13 +152,14 @@ export const services = [
     icon: "headphones",
     number: "03",
     short: "Des outils fiables. Un quotidien plus serein.",
+    tags: ["Helpdesk N1", "Assistance", "Suivi"],
     description:
-      "Un accompagnement attentif pour résoudre les difficultés du quotidien et faire évoluer votre environnement informatique avec votre activité.",
+      "Un helpdesk de niveau 1 pour les difficultés informatiques du quotidien : accès, postes de travail et utilisation des logiciels. Les demandes sont qualifiées, suivies et orientées vers le bon interlocuteur si nécessaire.",
     deliverables: [
       "Qualification des demandes et des incidents",
       "Assistance à l’utilisation des outils",
       "Suivi des interventions",
-      "Recommandations de maintenance et d’évolution",
+      "Orientation des incidents nécessitant un niveau d’expertise supérieur",
     ],
     questions: [
       "Des incidents perturbent votre activité ?",
