@@ -72,24 +72,92 @@ function originAllowed(req) {
   return !origin || config.allowedOrigins.includes(origin);
 }
 
+const clip = (value, max = 120) => String(value ?? "").replace(/[\r\n\u0000]+/g, " ").trim().slice(0, max);
+
+/** Nomme la cause d'un échec d'enregistrement, sans hôte, mot de passe ni valeur saisie. */
+export function explainStorageFailure(error) {
+  const code = String(error?.code ?? "");
+  const constraint = typeof error?.constraint === "string" ? error.constraint : "";
+  const column = typeof error?.column === "string" ? error.column : "";
+  const where = constraint ? ` (contrainte ${constraint})` : column ? ` (colonne ${column})` : "";
+  const tail = " Votre demande n’a pas été enregistrée.";
+  if (/DATABASE_URL/i.test(String(error?.message ?? ""))) {
+    return `La variable DATABASE_URL est absente : la base n’a pas pu être contactée.${tail}`;
+  }
+  if (["ECONNREFUSED", "ENOTFOUND", "EAI_AGAIN", "EHOSTUNREACH", "ETIMEDOUT", "ECONNRESET"].includes(code)) {
+    return `La base de données est injoignable (code ${code}).${tail}`;
+  }
+  const network = {
+    "57P01": "Le serveur de base est en cours d’arrêt",
+    "57P02": "Le serveur de base a coupé la session",
+    "57P03": "Le serveur de base est en cours de démarrage",
+    "08001": "La connexion à la base a été refusée",
+    "08003": "La connexion à la base est déjà fermée",
+    "08004": "La base a rejeté la connexion",
+    "08006": "La connexion à la base a échoué",
+    "53300": "La base n’accepte plus de connexions",
+    "28P01": "L’identifiant de connexion à la base a été refusé",
+    "28000": "L’autorisation de connexion à la base a été refusée",
+    "3D000": "La base de données configurée n’existe pas",
+  };
+  if (network[code]) return `${network[code]} (code ${code}).${tail}`;
+  if (code === "42P01") return `Table absente${error?.table ? ` : ${error.table}` : ""}. Le service de contact n’est pas initialisé.${tail}`;
+  if (code === "3F000") return `Schéma absent${error?.schema ? ` : ${error.schema}` : ""}. Le service de contact n’est pas initialisé.${tail}`;
+  if (code === "42703") return `Colonne absente en base${column ? ` : ${column}` : ""}. Le schéma du service de contact est en retard.${tail}`;
+  if (code === "42501") return `Le service de contact n’a pas le droit d’écrire la demande (code 42501).${tail}`;
+  if (code === "23505") return `Doublon refusé par la base${where}.${tail}`;
+  if (code === "23503") return `Référence inconnue refusée par la base${where}.${tail}`;
+  if (code === "23502") return `Champ obligatoire absent en base${where}.${tail}`;
+  if (code === "23514") return `Règle de la base non respectée${where}.${tail}`;
+  if (code === "22001") return `Une valeur dépasse la longueur autorisée en base${where}.${tail}`;
+  if (code === "22P02") return `Une valeur a un format refusé par la base (code 22P02).${tail}`;
+  if (code.startsWith("23") || code.startsWith("22")) return `La base a refusé les données (code ${code})${where}.${tail}`;
+  const name = code || error?.name || "sans code";
+  return `Erreur inattendue pendant l’enregistrement (${name}).${tail}`;
+}
+
+export function validationSummary(errors) {
+  if (errors.length === 1) return errors[0].message;
+  const list = errors.map((item) => item.message.replace(/\.$/, "")).join(" ; ");
+  return `${errors.length} informations empêchent l’envoi : ${list}.`;
+}
+
 async function handleSubmit(req, res, worker) {
-  if (!originAllowed(req)) return send(res, 403, { error: "origin", message: "Origine non autorisée." });
-  if (!String(req.headers["content-type"] ?? "").startsWith("application/json")) {
-    return send(res, 415, { error: "content_type", message: "Format de requête non pris en charge." });
+  if (!originAllowed(req)) {
+    const origin = clip(req.headers.origin, 200) || "absente";
+    return send(res, 403, { error: "origin", message: `Origine refusée : « ${origin} » n’est pas autorisée à envoyer une demande.` });
+  }
+  const contentType = String(req.headers["content-type"] ?? "");
+  if (!contentType.startsWith("application/json")) {
+    const received = clip(contentType, 80);
+    return send(res, 415, {
+      error: "content_type",
+      message: received
+        ? `Format refusé : Content-Type « ${received} ». Seul application/json est accepté.`
+        : "Format refusé : l’en-tête Content-Type est absent. application/json est requis.",
+    });
   }
   if (rateLimited(clientIp(req))) {
-    return send(res, 429, { error: "rate_limited", message: "Trop d’envois rapprochés. Merci de réessayer dans quelques minutes." }, { "Retry-After": "600" });
+    const minutes = Math.max(1, Math.round(config.rateLimit.windowMs / 60000));
+    return send(res, 429, {
+      error: "rate_limited",
+      message: `Trop d’envois depuis cette adresse : ${config.rateLimit.max} demandes maximum en ${minutes} minutes.`,
+    }, { "Retry-After": "600" });
   }
-  const key = String(req.headers["idempotency-key"] ?? "").trim();
+  const rawKey = req.headers["idempotency-key"];
+  const key = String(rawKey ?? "").trim();
   if (!isValidIdempotencyKey(key)) {
-    return send(res, 400, { error: "idempotency_key", message: "Requête invalide : clé d’envoi manquante." });
+    const message = rawKey === undefined || key === ""
+      ? "En-tête Idempotency-Key absent : chaque envoi doit porter une clé de 8 à 128 caractères."
+      : `En-tête Idempotency-Key refusé (« ${clip(key, 40)} ») : 8 à 128 caractères parmi lettres, chiffres, point, tiret, underscore et deux-points.`;
+    return send(res, 400, { error: "idempotency_key", message });
   }
 
   const body = await readJson(req);
   // Champ piège invisible pour les humains : rempli = robot.
   if (typeof body.website === "string" && body.website.trim()) {
     log.warn({ ip_hint: "honeypot" }, "Envoi refusé (champ piège rempli)");
-    return send(res, 400, { error: "rejected", message: "Votre demande n’a pas pu être prise en compte." });
+    return send(res, 400, { error: "honeypot", message: "Envoi refusé : le champ anti-robot « website » contenait du texte. Laissez-le vide." });
   }
 
   const submission = parseSubmission(body);
@@ -116,20 +184,36 @@ export function createApp({ worker } = {}) {
         }
       }
       if (url.pathname === "/api/contact-requests") {
-        if (req.method !== "POST") return send(res, 405, { error: "method" }, { Allow: "POST" });
+        if (req.method !== "POST") {
+          return send(res, 405, {
+            error: "method",
+            message: `Méthode ${req.method || "inconnue"} refusée sur /api/contact-requests : seul POST est accepté.`,
+          }, { Allow: "POST" });
+        }
         return await handleSubmit(req, res, worker);
       }
-      return send(res, 404, { error: "not_found" });
+      return send(res, 404, {
+        error: "not_found",
+        message: `Adresse introuvable : ${req.method || "requête"} ${clip(url.pathname, 160)} ne correspond à aucune route du service de contact.`,
+      });
     } catch (error) {
       if (error instanceof ValidationError) {
-        return send(res, 400, { error: "validation", message: "Certaines informations sont à vérifier.", errors: error.errors });
+        return send(res, 400, { error: "validation", message: validationSummary(error.errors), errors: error.errors });
       }
       if (error instanceof ConflictError) return send(res, 409, { error: "conflict", message: error.message });
-      if (error?.status === 413) return send(res, 413, { error: "too_large", message: "Votre demande est trop volumineuse." });
-      if (error?.status === 400) return send(res, 400, { error: "bad_request", message: "Requête invalide." });
-      // Base indisponible ou erreur inattendue : rien n'est enregistré, le navigateur le sait.
+      if (error?.status === 413) {
+        return send(res, 413, { error: "too_large", message: `La demande dépasse ${MAX_BODY_BYTES / 1024} Ko et a été refusée avant l’enregistrement.` });
+      }
+      if (error?.status === 400) {
+        return send(res, 400, { error: "invalid_json", message: "Le corps envoyé n’est pas un JSON valide. La demande n’a pas été enregistrée." });
+      }
+      const code = String(error?.code ?? "");
+      if (["ECONNRESET", "EPIPE", "ECONNABORTED"].includes(code)) {
+        return send(res, 400, { error: "incomplete", message: `La connexion a été coupée pendant l’envoi (code ${code}). La demande n’a pas été enregistrée.` });
+      }
+      // Base indisponible ou erreur inattendue : rien n'est enregistré, le navigateur sait pourquoi.
       log.error({ error: error?.message, code: error?.code }, "Erreur lors du traitement d'une demande");
-      return send(res, 503, { error: "unavailable", message: "Le service est momentanément indisponible. Votre demande n’a pas été enregistrée." });
+      return send(res, 503, { error: "unavailable", message: explainStorageFailure(error) });
     }
   });
 }

@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { getContactQuestions, subjectGroups } from "../../src/contactQuestions.js";
-import { notificationHtml, notificationRows, notificationSubject, notificationText } from "../src/email.js";
+import { explainStorageFailure, validationSummary } from "../src/app.js";
+import { explainSmtpFailure, notificationHtml, notificationRows, notificationSubject, notificationText } from "../src/email.js";
 import { genesisIdempotencyKey, genesisPayload } from "../src/genesis.js";
 import { naturalKey, parseSubmission, requestHash, ValidationError } from "../src/submission.js";
 import { genesisComment } from "../src/summary.js";
@@ -78,6 +79,31 @@ test("l'e-mail suit le modèle et échappe le contenu du client", () => {
   assert.deepEqual(notificationRows(row).slice(0, 4).map((r) => r[0]), ["Contact", "E-mail", "Entreprise", "Expertise"]);
   assert.ok(notificationText(row).includes("Budget envisagé : De 1 000 à 3 000 €"));
   assert.ok(!/[\r\n]/.test(notificationSubject({ ...row, subject: "Création web\r\nBcc: x@y.z" })));
+});
+
+test("chaque échec d'enregistrement nomme sa cause", () => {
+  assert.match(explainStorageFailure({ code: "ECONNREFUSED" }), /injoignable \(code ECONNREFUSED\)/);
+  assert.match(explainStorageFailure({ code: "28P01" }), /identifiant de connexion/);
+  assert.match(explainStorageFailure({ code: "23505", constraint: "contact_submissions_idempotency_key_key" }), /idempotency_key_key/);
+  assert.match(explainStorageFailure({ code: "23502", column: "email" }), /colonne email/);
+  assert.match(explainStorageFailure({ code: "42P01", table: "site.contact_submissions" }), /site\.contact_submissions/);
+  assert.match(explainStorageFailure(new Error("DATABASE_URL non configuré")), /DATABASE_URL/);
+  assert.match(explainStorageFailure({ name: "TypeError" }), /TypeError/);
+  assert.match(validationSummary([{ field: "email", message: "Merci d’indiquer une adresse e-mail valide." }]), /e-mail valide/);
+  assert.match(validationSummary([
+    { field: "given_name", message: "Merci d’indiquer votre prénom." },
+    { field: "message", message: "Décrivez votre demande en au moins 10 caractères." },
+  ]), /2 informations empêchent l’envoi/);
+});
+
+test("un refus SMTP dit le code et la réponse, pas le secret", () => {
+  const error = explainSmtpFailure({ code: "EAUTH", responseCode: 535, response: "535 Authentication failed", command: "AUTH PLAIN secret" });
+  assert.match(error.message, /EAUTH/);
+  assert.match(error.message, /SMTP 535/);
+  assert.match(error.message, /Authentication failed/);
+  assert.equal(error.message.includes("secret"), false);
+  assert.equal(error.retryable, true);
+  assert.equal(explainSmtpFailure({ code: "EENVELOPE" }).retryable, false);
 });
 
 test("les relances s'espacent puis s'arrêtent ; une erreur définitive n'est pas relancée", () => {

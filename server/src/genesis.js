@@ -39,7 +39,10 @@ export const genesisIdempotencyKey = (row) => `site-vitrine:${row.id}`;
 export async function pushToGenesis(row) {
   const { url, serviceToken, timeoutMs } = config.genesis;
   if (!serviceToken) {
-    throw new GenesisError("GENESIS_SERVICE_TOKEN non configuré", { retryable: true });
+    throw new GenesisError("Transmission Genesis impossible : GENESIS_SERVICE_TOKEN n’est pas configuré.", { retryable: true });
+  }
+  if (!url) {
+    throw new GenesisError("Transmission Genesis impossible : GENESIS_URL n’est pas configuré.", { retryable: true });
   }
 
   let response;
@@ -56,8 +59,8 @@ export async function pushToGenesis(row) {
       signal: AbortSignal.timeout(timeoutMs),
     });
   } catch (error) {
-    const reason = error?.cause?.code || error?.name || "erreur réseau";
-    throw new GenesisError(`Genesis injoignable (${reason})`, { retryable: true });
+    const reason = error?.cause?.code || error?.code || error?.name || "erreur réseau";
+    throw new GenesisError(`Genesis injoignable à ${url}${GENESIS_LEADS_PATH} (${reason}).`, { retryable: true });
   }
 
   const raw = await response.text();
@@ -67,20 +70,36 @@ export async function pushToGenesis(row) {
   } catch {
     data = null;
   }
-  const remoteMessage = data?.error?.message || raw.slice(0, 200);
+  const remoteMessage = clipGenesis(data?.error?.message || data?.message || raw);
 
   if (response.status === 200 || response.status === 201) {
     const id = data?.lead?.id;
     if (typeof id !== "string" || !id) {
-      throw new GenesisError(`Réponse Genesis sans identifiant de lead (HTTP ${response.status})`, { status: response.status, retryable: true });
+      throw new GenesisError(`Genesis a répondu HTTP ${response.status} sans identifiant de lead.`, { status: response.status, retryable: true });
     }
     return id;
   }
   // Données refusées ou conflit d'idempotence : réessayer à l'identique ne changera rien.
   if (response.status === 400 || response.status === 409 || response.status === 413 || response.status === 422) {
-    throw new GenesisError(`Genesis a refusé la demande (HTTP ${response.status}) : ${remoteMessage}`, { status: response.status, retryable: false });
+    throw new GenesisError(`Genesis a refusé la demande (HTTP ${response.status}) : ${remoteMessage}.`, { status: response.status, retryable: false });
   }
-  // 401/403 : jeton à corriger côté configuration ; 404 : endpoint absent ; 5xx : panne.
-  // On réessaie avec délai croissant, la demande reste en attente sans être perdue.
-  throw new GenesisError(`Genesis a répondu HTTP ${response.status} : ${remoteMessage}`, { status: response.status, retryable: true });
+  if (response.status === 401) {
+    throw new GenesisError(`Genesis a refusé le jeton de service (HTTP 401) : ${remoteMessage}.`, { status: 401, retryable: true });
+  }
+  if (response.status === 403) {
+    throw new GenesisError(`Genesis a refusé l’autorisation du jeton de service (HTTP 403) : ${remoteMessage}.`, { status: 403, retryable: true });
+  }
+  if (response.status === 404) {
+    throw new GenesisError(`Genesis n’a pas cet endpoint (HTTP 404, ${GENESIS_LEADS_PATH}) : ${remoteMessage}.`, { status: 404, retryable: true });
+  }
+  if (response.status === 429) {
+    throw new GenesisError(`Genesis limite les envois (HTTP 429) : ${remoteMessage}.`, { status: 429, retryable: true });
+  }
+  // 5xx ou statut inattendu : panne distante, la demande reste en attente.
+  throw new GenesisError(`Genesis a répondu HTTP ${response.status} : ${remoteMessage}.`, { status: response.status, retryable: true });
 }
+
+const clipGenesis = (value) => {
+  const text = String(value ?? "").replace(/[\r\n]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 200);
+  return text || "aucun détail fourni par Genesis";
+};

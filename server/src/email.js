@@ -150,12 +150,27 @@ function getTransport() {
   return transport;
 }
 
+/** Décrit un refus SMTP sans reprendre d'identifiant ni de mot de passe. */
+export function explainSmtpFailure(error) {
+  const code = error?.code || error?.name || "inconnue";
+  const smtp = error?.responseCode ? `, réponse SMTP ${error.responseCode}` : "";
+  const reply = typeof error?.response === "string"
+    ? error.response.replace(/[\r\n]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 160)
+    : "";
+  const failure = new Error(`Notification e-mail impossible (${code}${smtp})${reply ? ` : ${reply}` : ""}.`);
+  failure.retryable = !["EENVELOPE", "EMESSAGE"].includes(String(error?.code ?? ""));
+  return failure;
+}
+
 /** Envoie la notification ; renvoie le Message-ID SMTP. Lève une erreur si le serveur refuse. */
 export async function sendNotification(row) {
   if (!config.smtp.host || !config.smtp.from) {
-    throw new Error("Messagerie non configurée (SMTP_HOST / SMTP_FROM)");
+    const missing = [!config.smtp.host && "SMTP_HOST", !config.smtp.from && "SMTP_FROM"].filter(Boolean).join(" et ");
+    throw Object.assign(new Error(`Messagerie non configurée : ${missing} absent.`), { retryable: true });
   }
-  const info = await getTransport().sendMail({
+  let info;
+  try {
+    info = await getTransport().sendMail({
     from: { name: "Assistant ProDigital", address: config.smtp.from },
     to: config.smtp.to,
     replyTo: { name: fullName(row), address: row.email },
@@ -167,8 +182,14 @@ export async function sendNotification(row) {
     headers: { "X-ProDigital-Request": row.id },
     attachments: [{ filename: "prodigital.png", content: LOGO, cid: LOGO_CID, contentType: "image/png" }],
   });
+  } catch (error) {
+    throw explainSmtpFailure(error);
+  }
   if (Array.isArray(info.rejected) && info.rejected.length) {
-    throw new Error(`Destinataire refusé par le serveur SMTP : ${info.rejected.join(", ")}`);
+    throw Object.assign(new Error(`Destinataire refusé par le serveur SMTP : ${info.rejected.join(", ")}.`), { retryable: false });
+  }
+  if (!info.messageId) {
+    throw Object.assign(new Error("Le serveur SMTP a accepté l’envoi sans renvoyer de Message-ID."), { retryable: true });
   }
   return info.messageId;
 }

@@ -20,9 +20,21 @@ export function nextRetryAt(attempts, retryable = true) {
 
 export async function runOperation({ submission_id: id, kind, attempts }, log) {
   const row = await getSubmission(id);
-  if (!row) return;
+  if (!row) {
+    await markFailed(id, kind, new Error(`Demande ${id} introuvable : l’opération ${kind} ne peut pas partir.`), null);
+    log.warn?.({ id, kind }, "Opération abandonnée : demande introuvable");
+    return;
+  }
+  const handler = handlers[kind];
+  if (!handler) {
+    const error = new Error(`Opération « ${kind} » inconnue : seuls email et crm sont prévus.`);
+    error.retryable = false;
+    await markFailed(id, kind, error, null);
+    log.warn?.({ id, kind }, "Opération abandonnée : type inconnu");
+    return;
+  }
   try {
-    const externalId = await handlers[kind](row);
+    const externalId = await handler(row);
     await markSucceeded(id, kind, externalId ?? null);
     log.info?.({ id, kind, attempts, externalId }, "Opération réussie");
   } catch (error) {
