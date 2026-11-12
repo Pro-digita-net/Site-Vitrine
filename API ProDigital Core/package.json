@@ -1,0 +1,42 @@
+{
+  "name": "prodigital-core-api",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "API ProDigital Core V1 : référentiel multi-entreprises, IAM, workers d'intégration.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "start:api": "node dist/core/server.js",
+    "start:iam": "node dist/iam/server.js",
+    "start:worker": "node dist/worker/main.js",
+    "iam": "node dist/iam/cli.js",
+    "worker:ops": "node dist/worker/cli.js",
+    "migrate": "node dist/scripts/migrate.js",
+    "openapi": "node dist/scripts/openapi.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "express": "^5.3.0",
+    "jose": "^6.2.17",
+    "nodemailer": "^10.3.1",
+    "pg": "^8.23.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/mailparser": "^3.9.0",
+    "@types/node": "^26.6.6",
+    "@types/nodemailer": "^8.0.2",
+    "@types/pg": "^8.23.1",
+    "@types/smtp-server": "^3.5.13",
+    "mailparser": "^3.14.3",
+    "smtp-server": "^3.21.4",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.12"
+  }
+}

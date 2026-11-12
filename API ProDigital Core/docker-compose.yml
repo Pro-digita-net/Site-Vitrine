@@ -1,0 +1,65 @@
+# ProDigital Core API — Coolify (Docker Compose). PostgreSQL est une ressource Coolify distincte,
+# jointe par un réseau Docker privé : aucun port de base de données n'est publié.
+# Dans Coolify : associer un domaine à core-api (port 8080, chemin /api) et à core-iam (port 8080, chemin /iam).
+# core-worker n'a pas de domaine.
+x-core: &core
+  build: .
+  restart: unless-stopped
+  read_only: true
+  tmpfs: [/tmp]
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  networks: [default, database]
+
+services:
+  core-api:
+    <<: *core
+    command: ["node", "dist/core/server.js"]
+    expose: ["8080"]
+    environment:
+      CORE_DATABASE_URL: ${CORE_DATABASE_URL:?compte pd_core_api}
+      SITE_DATABASE_URL: ${SITE_DATABASE_URL:-}
+      DATABASE_SSL: ${DATABASE_SSL:-}
+      DATABASE_POOL_MAX: ${DATABASE_POOL_MAX:-10}
+      RATE_LIMIT_MAX: ${RATE_LIMIT_MAX:-300}
+      METRICS_TOKEN: ${METRICS_TOKEN:-}
+      TRUST_PROXY: "true"
+
+  core-iam:
+    <<: *core
+    command: ["node", "dist/iam/server.js"]
+    expose: ["8080"]
+    environment:
+      IAM_DATABASE_URL: ${IAM_DATABASE_URL:?compte pd_iam_admin}
+      DATABASE_SSL: ${DATABASE_SSL:-}
+      OIDC_ISSUER: ${OIDC_ISSUER:-}
+      OIDC_AUDIENCE: ${OIDC_AUDIENCE:-}
+      OIDC_JWKS_URI: ${OIDC_JWKS_URI:-}
+      SESSION_TTL_HOURS: ${SESSION_TTL_HOURS:-12}
+      RATE_LIMIT_AUTH_MAX: ${RATE_LIMIT_AUTH_MAX:-20}
+      METRICS_TOKEN: ${METRICS_TOKEN:-}
+      TRUST_PROXY: "true"
+
+  core-worker:
+    <<: *core
+    command: ["node", "dist/worker/main.js"]
+    environment:
+      WORKER_DATABASE_URL: ${WORKER_DATABASE_URL:?compte pd_core_worker}
+      DATABASE_SSL: ${DATABASE_SSL:-}
+      SECRETS_DIR: /run/secrets
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-465}
+      SMTP_SECURITY: ${SMTP_SECURITY:-ssl}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      METRICS_TOKEN: ${METRICS_TOKEN:-}
+    volumes:
+      # Coffre : un fichier JSON par référence de connexion, monté en lecture seule (voir README).
+      - ${SECRETS_HOST_DIR:-./secrets}:/run/secrets:ro
+
+networks:
+  # Réseau privé de la ressource PostgreSQL (Coolify : « Connect to Predefined Network », ou nom du réseau de la base).
+  database:
+    external: true
+    name: ${DATABASE_NETWORK:-coolify}
