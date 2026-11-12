@@ -9,6 +9,26 @@ const EMPTY = { given_name: "", family_name: "", email: "", company: "", subject
 // clic ou un renvoi après coupure réseau ne crée jamais deux demandes.
 const newKey = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`);
 
+function unavailableReason(status, code) {
+  if (code === "origin") return "L’origine de la requête n’est pas autorisée.";
+  if (status === 413) return "Votre demande est trop volumineuse pour être envoyée.";
+  if (status === 502 || status === 504) return "Le serveur de contact n’a pas répondu correctement (passerelle).";
+  if (status === 503) return "Le service de contact est momentanément indisponible.";
+  if (status >= 500) return `Le serveur a renvoyé une erreur interne (code ${status}).`;
+  if (status) return `L’envoi a échoué (code ${status}).`;
+  return "L’envoi a échoué pour une raison inconnue.";
+}
+
+function networkReason(error) {
+  if (error?.name === "TimeoutError" || error?.name === "AbortError") {
+    return "Délai dépassé : le serveur n’a pas répondu à temps.";
+  }
+  if (typeof navigator !== "undefined" && navigator.onLine === false) {
+    return "Aucune connexion Internet détectée.";
+  }
+  return "Impossible de joindre le service de contact (réseau ou serveur inaccessible).";
+}
+
 // Titre d'étape, dans le style des intertitres du site (numéro bleu, filet, capitales).
 function StepTitle({ number, children, as: Tag = "p" }) {
   return <Tag className="form-step-title"><span aria-hidden="true">{number}</span><i aria-hidden="true" />{children}</Tag>;
@@ -126,9 +146,14 @@ export default function ContactForm({ initialSubject = "" }) {
         setStatus("invalid");
         if (response.status === 409) keyRef.current = newKey();
       } else {
+        setFeedback({
+          message: data.message || unavailableReason(response.status, data.error),
+          errors: data.errors || [],
+        });
         setStatus("unavailable");
       }
-    } catch {
+    } catch (error) {
+      setFeedback({ message: networkReason(error), errors: [] });
       setStatus("unavailable");
     } finally {
       sendingRef.current = false;
@@ -264,7 +289,9 @@ export default function ContactForm({ initialSubject = "" }) {
         <CircleAlert aria-hidden="true" />
         <div>
           <h3 id="unavailable-heading" ref={resultRef} tabIndex={-1}>Votre demande n’a pas pu être enregistrée.</h3>
-          <p>Le service est momentanément indisponible et rien n’a été envoyé. Vos réponses sont conservées sur cette page : vous pouvez réessayer, ou nous écrire directement à {contactEmail}.</p>
+          <p><strong>Raison :</strong> {feedback.message || "Le service est momentanément indisponible."}</p>
+          <p>Rien n’a été envoyé. Vos réponses sont conservées sur cette page : vous pouvez réessayer, ou nous écrire directement à {contactEmail}.</p>
+          {!!feedback.errors.length && <ul>{feedback.errors.map(error => <li key={error.field || error.message}>{error.message}</li>)}</ul>}
           <button type="submit" className="button">Réessayer l’envoi <ArrowUpRight size={17} aria-hidden="true" /></button>
           <details className="contact-message-preview"><summary>Envoyer par e-mail à la place</summary>
             <pre>{message}</pre>

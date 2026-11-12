@@ -40,6 +40,8 @@ Une écriture exige aussi la permission de lecture (la base relit la ligne). Un 
 
 ## Conventions HTTP
 
+Documentation complète (routes, champs, erreurs, webhooks, CLI) : [docs/API.md](docs/API.md).
+
 - `Authorization: Bearer <jeton opaque>`. Réponses `{ "data": … }` et listes `{ "data": [], "page": { limit, offset, has_more } }`.
 - Erreurs `{ "error": { code, message, details?, request_id } }`. Les messages PostgreSQL ne sortent jamais.
 - Listes : `limit` (≤ 100), `offset`, `sort` (`champ` ou `-champ`, liste fermée), `q`, filtres déclarés, `archived=false|true|all`. Tout paramètre inconnu → 400.
