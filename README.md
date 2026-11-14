@@ -1,7 +1,7 @@
 # Site-Vitrine
 
 Site vitrine de ProDigital (pro-digital.net) : application React 19 + Vite 7 servie en
-statique (navigation `HashRouter`), et une petite API pour le formulaire de contact
+statique (pages HTML pré-rendues, navigation `BrowserRouter`), et une petite API pour le formulaire de contact
 ([server/](server/README.md)) : enregistrement en base, notification e-mail, transmission à Genesis CRM.
 
 ## Développement
@@ -54,3 +54,5 @@ Volumes : aucun, les demandes sont stockées dans PostgreSQL (schéma `site`).
 
 Le site reste servi même si l'API, la base, Genesis ou la messagerie sont indisponibles : seule la
 transmission des demandes en dépend, et elle reprend automatiquement.
+
+Référencement : voir [SEO.md](SEO.md). Vérification après build : `npm run test:seo`.

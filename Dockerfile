@@ -14,6 +14,7 @@ RUN npm ci --no-audit --no-fund
 COPY index.html vite.config.js ./
 COPY public ./public
 COPY src ./src
+COPY scripts/prerender.mjs ./scripts/prerender.mjs
 RUN npm run build
 
 # --- 2. Runtime ---------------------------------------------------------------

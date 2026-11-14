@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
-  HashRouter,
+  BrowserRouter,
   Routes,
   Route,
   Link,
@@ -54,6 +54,7 @@ import {
   contactEmail,
 } from "./data";
 import { usePageMotion } from "./motion";
+import { updateMetadata } from "./seo.js";
 import ContactForm from "./ContactForm.jsx";
 import "./styles.css";
 
@@ -172,7 +173,10 @@ function Header() {
 }
 function Footer() {
   return (
-    <footer className="footer">
+    <footer className="footer" itemScope itemType="https://schema.org/Organization">
+      <meta itemProp="name" content="ProDigital" />
+      <meta itemProp="url" content="https://pro-digital.net" />
+      <meta itemProp="email" content={contactEmail} />
       <div className="container footer-top">
         <Brand />
         <p>
@@ -1814,26 +1818,11 @@ function NotFound() {
 function RouteEffects() {
   const { pathname } = useLocation();
   useEffect(() => {
-    const segment = pathname.split("/").filter(Boolean).pop();
-    const item =
-      products.find((p) => p.id === segment) ||
-      formations.find((f) => f.id === segment) ||
-      services.find((s) => s.id === segment) ||
-      projects.find((p) => p.id === segment);
-    const labels = {
-      solutions: "Nos logiciels à venir",
-      formations: "Formations",
-      expertises: "Nos expertises",
-      projets: "Nos projets",
-      studio: "Le studio",
-      contact: "Contact",
-      confidentialite: "Confidentialité",
-    };
-    document.title = `${item?.name || labels[segment] || "Création web, conseil et assistance informatique"} — ProDigital`;
+    updateMetadata(pathname);
   }, [pathname]);
   return null;
 }
-function Shell() {
+export function Shell() {
   const location = useLocation();
   usePageMotion(location.pathname);
   return (
@@ -1874,13 +1863,17 @@ function Shell() {
 }
 function App() {
   return (
-    <HashRouter>
+    <BrowserRouter>
       <Shell />
-    </HashRouter>
+    </BrowserRouter>
   );
 }
+if (typeof document !== "undefined") {
+if (location.hash.startsWith("#/")) history.replaceState(null, "", location.hash.slice(1));
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <App />
   </React.StrictMode>,
 );
+
+}
