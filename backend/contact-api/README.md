@@ -20,7 +20,7 @@ Formulaire ──POST──▶ API ──┬─ transaction ─▶ site.contact_
 ```
 
 - **Source unique** : les trois opérations lisent la ligne enregistrée ; l'e-mail et le récapitulatif Genesis contiennent donc exactement ce que le client a envoyé, y compris à la dixième relance.
-- **Sujets et champs complémentaires** : définis une seule fois dans [`src/contactQuestions.js`](../src/contactQuestions.js), utilisés par le formulaire *et* par la validation du serveur.
+- **Sujets et champs complémentaires** : définis une seule fois dans [`shared/contactQuestions.js`](../../shared/contactQuestions.js), utilisés par le formulaire *et* par la validation du serveur.
 - **Doublons** : clé `Idempotency-Key` générée par le navigateur (double clic, renvoi réseau), plus rapprochement e-mail + sujet + message sur 24 h (rechargement de page). Côté Genesis, la clé `site-vitrine:<id>` garantit un seul lead par demande.
 - **Relances** : après 30 s, 2 min, 10 min, 30 min, 1 h, 3 h, 6 h, 12 h. Au-delà, l'opération passe en `failed` et attend une relance manuelle ; la demande reste en base. Une opération interrompue par un arrêt brutal est reprise à l'expiration de son bail (2 min).
 - **Erreurs définitives** : un refus de Genesis sur le contenu (400, 409, 413, 422) n'est pas relancé. Jeton invalide, Genesis ou messagerie injoignable : relance.
@@ -42,7 +42,7 @@ Formulaire ──POST──▶ API ──┬─ transaction ─▶ site.contact_
    psql "$URL_PROPRIETAIRE" -v ON_ERROR_STOP=1 -f sql/site-role-grants.sql
    psql "$URL_PROPRIETAIRE" -v ON_ERROR_STOP=1 -f sql/core-contact-requests-readonly.sql   # base Core
    ```
-2. **Variables** du service `api` : voir [`.env.example`](../.env.example) (`DATABASE_URL`, `GENESIS_URL`, `GENESIS_SERVICE_TOKEN`, `SMTP_*`).
+2. **Variables** du service `api` : voir [`.env.example`](../../.env.example) (`DATABASE_URL`, `GENESIS_URL`, `GENESIS_SERVICE_TOKEN`, `SMTP_*`).
 3. **Réseau** : le conteneur `api` doit joindre PostgreSQL et Genesis.
 
 Si le jeton Genesis ou le SMTP manquent, l'API démarre quand même : les demandes sont enregistrées et les opérations concernées attendent la configuration.
@@ -72,4 +72,4 @@ npm run test:e2e    # parcours complet (Docker + dépôt Genesis en local)
 
 `test:e2e` démarre un PostgreSQL jetable, y applique le schéma `web.contact_requests` et les migrations 015/017 de Genesis, monte le **vrai handler** `server/sales-lead-http.ts` du dépôt Genesis (`GENESIS_REPO`, défaut `C:/GENESIS`), reçoit les e-mails par SMTP authentifié, puis joue : parcours nominal, doubles soumissions, validation, panne Genesis, panne messagerie, jeton invalide, arrêt brutal, relance manuelle, lecture seule, panne de base.
 
-En local avec le site : `node test/e2e.mjs --serve`, puis à la racine `API_PROXY_TARGET=http://127.0.0.1:58788 npm run dev`.
+En local avec le site : `node test/e2e.mjs --serve`, puis dans `frontend/` `API_PROXY_TARGET=http://127.0.0.1:58788 npm run dev`.

@@ -1,9 +1,9 @@
 // Validation et normalisation d'une demande. Une seule source de vérité pour
-// les sujets et leurs champs complémentaires : src/contactQuestions.js, le
+// les sujets et leurs champs complémentaires : shared/contactQuestions.js, le
 // module déjà utilisé par le formulaire du site.
 
 import { createHash } from "node:crypto";
-import { getContactQuestions, isKnownSubject, subjectGroupLabel } from "../../src/contactQuestions.js";
+import { getContactQuestions, isKnownSubject, subjectGroupLabel } from "../../../shared/contactQuestions.js";
 
 const LIMITS = { name: 80, email: 254, company: 150, message: 5000, answer: 400 };
 const EMAIL_RE = /^[^\s@<>"(),;:]+@[^\s@<>"(),;:]+\.[^\s@<>"(),;:]{2,}$/;

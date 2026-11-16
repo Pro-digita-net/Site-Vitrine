@@ -34,7 +34,7 @@ export async function withTransaction(fn) {
   }
 }
 
-/** Applique les fichiers de server/migrations dans l'ordre, une seule fois chacun. */
+/** Applique les fichiers de contact-api/migrations dans l'ordre, une seule fois chacun. */
 export async function migrate(log = console.log) {
   const dir = new URL("../migrations/", import.meta.url);
   const files = (await readdir(dir)).filter((name) => name.endsWith(".sql")).sort();

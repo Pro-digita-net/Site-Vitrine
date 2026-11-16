@@ -1,0 +1,10 @@
+{
+  "name": "prodigital-site-shared",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Contenu du site et définition du formulaire de contact, partagés entre frontend/ et backend/contact-api/.",
+  "scripts": {
+    "test": "node test-contact.mjs"
+  }
+}

@@ -2,6 +2,12 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "site",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "frontend", "run", "dev", "--", "--port", "5183", "--strictPort"],
+      "port": 5183
+    },
+    {
       "name": "genesis-dev",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "C:/GENESIS", "run", "dev", "--", "--port", "5191", "--strictPort"],

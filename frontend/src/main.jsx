@@ -52,7 +52,7 @@ import {
   expertiseSituations,
   projects,
   contactEmail,
-} from "./data";
+} from "../../shared/data.js";
 import { usePageMotion } from "./motion";
 import { updateMetadata } from "./seo.js";
 import ContactForm from "./ContactForm.jsx";

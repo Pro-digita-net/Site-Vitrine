@@ -1,4 +1,4 @@
-import { products, formations, services, projects } from './data.js';
+import { products, formations, services, projects } from '../../shared/data.js';
 export const origin = 'https://pro-digital.net';
 const base = [
  ['/', 'Création de sites web, conseil et assistance informatique', 'ProDigital accompagne les professionnels : création de sites internet, conseil informatique, assistance et formations numériques. Parlons de votre projet.'],

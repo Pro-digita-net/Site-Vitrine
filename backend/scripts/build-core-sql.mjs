@@ -1,3 +1,4 @@
+// À lancer depuis backend/ : node scripts/build-core-sql.mjs [dossier des migrations Genesis]
 import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
@@ -41,10 +42,10 @@ INSERT INTO deployment.bundle_migrations(name,sha256) VALUES ('${name}','${diges
 function site() {
   return `BEGIN;
 SELECT pg_advisory_xact_lock(hashtext('site.migrations'));
-${fs.readFileSync('server/migrations/001-site-contact.sql','utf8')}
+${fs.readFileSync('contact-api/migrations/001-site-contact.sql','utf8')}
 CREATE TABLE IF NOT EXISTS site.schema_migrations (name text PRIMARY KEY, applied_at timestamptz NOT NULL DEFAULT clock_timestamp());
 INSERT INTO site.schema_migrations(name) VALUES ('001-site-contact.sql') ON CONFLICT DO NOTHING;
-${fs.readFileSync('server/sql/site-role-grants.sql','utf8')}
+${fs.readFileSync('contact-api/sql/site-role-grants.sql','utf8')}
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA site TO site_vitrine;
 GRANT CONNECT ON DATABASE prodigital TO site_vitrine;
 COMMIT;
@@ -60,7 +61,7 @@ ALTER ROLE genesis IN DATABASE prodigital SET search_path=genesis,common;
 ALTER ROLE orbit IN DATABASE prodigital SET search_path=orbit,common;
 `;
 const read = n => fs.readFileSync(path.join(source,n),'utf8');
-fs.writeFileSync(path.join(out,'01-prodigital-core-complet.sql'), preamble('prodigital',['genesis','orbit','site_vitrine'])+bootstrap+core.map(n=>migration(n,read(n))).join('\n')+migration('site-001.sql',site())+migration('site-core-readonly.sql',fs.readFileSync('server/sql/core-contact-requests-readonly.sql','utf8')));
+fs.writeFileSync(path.join(out,'01-prodigital-core-complet.sql'), preamble('prodigital',['genesis','orbit','site_vitrine'])+bootstrap+core.map(n=>migration(n,read(n))).join('\n')+migration('site-001.sql',site())+migration('site-core-readonly.sql',fs.readFileSync('contact-api/sql/core-contact-requests-readonly.sql','utf8')));
 fs.writeFileSync(path.join(out,'02-prodigital-platform.sql'), preamble('prodigital_platform',['genesis'])+'GRANT CONNECT ON DATABASE prodigital_platform TO genesis;\n'+platform.map(n=>migration(n,read(n))).join('\n'));
 fs.writeFileSync(path.join(out,'03-site-contact-seulement.sql'), preamble('prodigital',['site_vitrine'])+site());
 fs.writeFileSync(path.join(out,'manifest.json'),JSON.stringify({ source, core, platform, excluded:'Seeds de démonstration / inventaire et migrations SaaS 030–034 destinées aux installations abonnées. Les règles common/business/platform sont déjà intégrées aux migrations 001.',sha256:manifest },null,2));

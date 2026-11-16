@@ -1,11 +1,12 @@
 // Produit le fichier d'installation autonome du socle commun ; ne se connecte à aucune base.
+// À lancer depuis backend/ : node scripts/build-core-foundation.mjs
 import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 const dir = path.resolve('exports/prodigital-core-v1');
 fs.mkdirSync(dir, { recursive: true });
 const base = fs.readFileSync(path.join(dir, 'foundation-source.sql'), 'utf8');
-const contact = fs.readFileSync('server/migrations/001-site-contact.sql', 'utf8');
+const contact = fs.readFileSync('contact-api/migrations/001-site-contact.sql', 'utf8');
 const policies = [];
 const domains = {
   'core.companies': 'directory', 'core.contacts': 'directory',
@@ -93,4 +94,4 @@ DO $$ BEGIN
 END $$;
 `;
 fs.writeFileSync(path.join(dir, 'prodigital-core.sql'), header+body+`\nINSERT INTO core_meta.migrations(version,sha256) VALUES ('foundation_v1','${digest}');\n\\endif\nCOMMIT;\n`);
-console.log('Fichier généré : exports/prodigital-core-v1/prodigital-core.sql');
+console.log('Fichier généré : backend/exports/prodigital-core-v1/prodigital-core.sql');

@@ -6,7 +6,8 @@
 #     (le « :8080 » indique le port interne ; l'URL publique reste en 443/HTTPS)
 #   - Aucun port n'est publié sur l'hôte : seul le proxy de Coolify accède au conteneur.
 #
-# Deux services : `site` (Nginx, fichiers statiques) et `api` (formulaire de contact).
+# Deux services : `site` (frontend/ — Nginx, fichiers statiques) et `api` (backend/contact-api/ —
+# formulaire de contact). Les deux images se construisent depuis la racine du dépôt (shared/ est commun).
 # L'API n'est pas exposée : seul Nginx la joint, sur /api/. Aucun volume : les demandes
 # vivent dans PostgreSQL (schéma `site`). Variables de l'API : voir .env.example.
 
@@ -14,7 +15,7 @@ services:
   site:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: frontend/Dockerfile
       args:
         NODE_VERSION: ${NODE_VERSION:-22}
         NGINX_VERSION: ${NGINX_VERSION:-1.28}
@@ -39,7 +40,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: Dockerfile.api
+      dockerfile: backend/contact-api/Dockerfile
       args:
         NODE_VERSION: ${NODE_VERSION:-22}
     restart: unless-stopped

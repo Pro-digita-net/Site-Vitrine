@@ -1,4 +1,4 @@
-// Non-régression du site vitrine : l'API existante du formulaire (dossier ../server, non modifiée) est lancée
+// Non-régression du site vitrine : l'API existante du formulaire (dossier ../contact-api, non modifiée) est lancée
 // telle quelle sur le socle Core avec le compte pd_site_api ; l'API Core en assure ensuite la lecture et la relance.
 import { spawn, type ChildProcess } from "node:child_process";
 import { createServer } from "node:net";
@@ -21,7 +21,7 @@ beforeAll(async () => {
   outsider = (await s.member(orgs.a, "owner")).token;
   const port = await freePort();
   // Ni SMTP ni jeton Genesis : les opérations doivent rester tracées et relançables, jamais perdues.
-  child = spawn(process.execPath, ["src/index.js"], { cwd: fileURLToPath(new URL("../../server", import.meta.url)), stdio: "ignore",
+  child = spawn(process.execPath, ["src/index.js"], { cwd: fileURLToPath(new URL("../../contact-api", import.meta.url)), stdio: "ignore",
     env: { PATH: process.env.PATH, SystemRoot: process.env.SystemRoot, DATABASE_URL: urls.pd_site_api, PORT: String(port), WORKER_POLL_MS: "300", WORKER_BACKOFF_SECONDS: "1", RATE_LIMIT_MAX: "100" } as NodeJS.ProcessEnv });
   siteApi = `http://127.0.0.1:${port}`;
   await until(async () => (await fetch(`${siteApi}/api/health`).then((r) => r.ok, () => false)));

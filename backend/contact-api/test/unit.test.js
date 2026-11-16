@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { getContactQuestions, subjectGroups } from "../../src/contactQuestions.js";
+import { getContactQuestions, subjectGroups } from "../../../shared/contactQuestions.js";
 import { explainStorageFailure, validationSummary } from "../src/app.js";
 import { explainSmtpFailure, notificationHtml, notificationRows, notificationSubject, notificationText } from "../src/email.js";
 import { genesisIdempotencyKey, genesisPayload } from "../src/genesis.js";

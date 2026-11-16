@@ -474,7 +474,7 @@ Lecture des demandes reçues par le formulaire du site ProDigital et relance de 
 | `GET /site/contact-submissions/{id}` | `requests.read` | Détail avec `details`, `message`, `source`, `operations` (tentatives, prochaine tentative, dernière erreur, identifiant externe) et `events` (historique). |
 | `POST /site/contact-submissions/{id}/retry` | `requests.read` + `requests.write` | Remet en file les envois en échec (e-mail, Genesis CRM). Réponse : `{ "requeued": ["crm"] }`. Les envois réussis ne sont jamais renvoyés. |
 
-Les demandes elles-mêmes sont créées uniquement par l'API du site (`server/`) et ne sont pas modifiables.
+Les demandes elles-mêmes sont créées uniquement par l'API du site (`backend/contact-api/`) et ne sont pas modifiables.
 
 ### 6.12 Connexions externes — `/connections`
 

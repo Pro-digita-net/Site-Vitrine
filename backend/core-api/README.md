@@ -9,7 +9,7 @@ Trois processus, une image, **un compte PostgreSQL par processus** — aucun n'e
 | `core-api` (`/api/v1`) | `pd_core_api` | API métier. Isolation par RLS, contexte dérivé du jeton par PostgreSQL. |
 | `core-iam` (`/iam/v1` + CLI) | `pd_iam_admin` | Connexion OIDC, sessions, membres, invitations, clés API. Seul à écrire dans `iam`. |
 | `core-worker` (+ CLI) | `pd_core_worker` | Outbox, notifications, webhooks, références de secrets. |
-| API du site (`../server`, inchangée) | `pd_site_api` | Formulaire de contact, e-mail et Genesis CRM. |
+| API du site (`../contact-api`, inchangée) | `pd_site_api` | Formulaire de contact, e-mail et Genesis CRM. |
 
 Architecture : `routes → controllers → services → repositories → PostgreSQL` (`src/core/controller.ts`, `service.ts`, `repository.ts`). Chaque ressource est déclarée dans `src/core/resources/index.ts` : table, colonnes, filtres, tris et opérations autorisés. Aucun identifiant SQL ne vient d'une requête ; toutes les valeurs sont des paramètres.
 
@@ -76,7 +76,7 @@ node dist/iam/cli.js member:set    --org prodigital --email vous@exemple.fr --ro
 - `webhook` : POST signé `X-ProDigital-Signature: sha256=<HMAC du corps>`, `Idempotency-Key` = identifiant de l'événement (livraison « au moins une fois »).
 - `email` : notification via SMTP (`notifications.deliveries`).
 - La base ne stocke qu'une **référence** de secret. Le secret est un fichier JSON `SECRETS_DIR/<référence>` (ou `PD_SECRET_<RÉFÉRENCE>`) : `{"url":"https://…","signing_secret":"…"}` ou `{"to":"adresse@domaine"}`. Enregistrement : `node dist/worker/cli.js secret:set --org <uuid> --connection <uuid> --ref <référence>`.
-- Formulaire du site et Genesis CRM : inchangés, assurés par `../server` ; l'API Core en donne la lecture et la relance (`/site/contact-submissions`).
+- Formulaire du site et Genesis CRM : inchangés, assurés par `../contact-api` ; l'API Core en donne la lecture et la relance (`/site/contact-submissions`).
 
 ## Migrations
 

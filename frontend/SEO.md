@@ -1,6 +1,6 @@
 # Référencement du site
 
-Le build génère 29 pages HTML complètes à partir des composants React et des données du site. Les métadonnées sont centralisées dans src/seo.js. Toute nouvelle route doit être ajoutée à ce registre ; les pages de détail suivent automatiquement les catalogues.
+Le build génère 29 pages HTML complètes à partir des composants React et des données du site. Les métadonnées sont centralisées dans src/seo.js (contenu dans ../shared/data.js). Toute nouvelle route doit être ajoutée à ce registre ; les pages de détail suivent automatiquement les catalogues.
 
 Commandes : npm run build puis npm run test:seo.
 

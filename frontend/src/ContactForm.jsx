@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { ArrowUpRight, Check, CircleAlert, Download, Mail, Plus } from "lucide-react";
-import { contactEmail } from "./data.js";
-import { buildContactMessage, getContactQuestions, isKnownSubject, subjectTopicGroups, topicItems, topicOf } from "./contactQuestions.js";
+import { contactEmail } from "../../shared/data.js";
+import { buildContactMessage, getContactQuestions, isKnownSubject, subjectTopicGroups, topicItems, topicOf } from "../../shared/contactQuestions.js";
 
 const ENDPOINT = "/api/contact-requests";
 const EMPTY = { given_name: "", family_name: "", email: "", company: "", subject: "", message: "" };

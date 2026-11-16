@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { buildContactMessage, getContactQuestions, isKnownSubject, subjectGroups } from '../src/contactQuestions.js';
+import { buildContactMessage, getContactQuestions, isKnownSubject, subjectGroups } from './contactQuestions.js';
 
 const subjects = subjectGroups.flatMap(group => group.items.map(item => item.name)).concat('Autre besoin');
 for (const subject of subjects) {
@@ -25,7 +25,7 @@ assert.deepEqual(getContactQuestions('Support IT').fields.filter(field => field.
 console.log(`${subjects.length} sujets vérifiés : questions, champs essentiels, export complet et exclusion des anciennes réponses.`);
 
 // Premier choix du formulaire : expertises, deux familles, « Autre besoin ».
-import { subjectTopics, topicItems, topicOf } from '../src/contactQuestions.js';
+import { subjectTopics, topicItems, topicOf } from './contactQuestions.js';
 assert.deepEqual(subjectTopics, ['Création web', 'Conseil IT', 'Support IT', 'Formations', 'Logiciels', 'Autre besoin']);
 assert.equal(topicItems('Support IT'), null);
 for (const topic of ['Formations', 'Logiciels']) {
@@ -44,6 +44,6 @@ assert.equal(topicOf('Support IT'), 'Support IT');
 assert.equal(topicOf('Sujet inconnu'), '');
 console.log('Sujets en deux niveaux vérifiés : familles, tri par catégorie puis par nom.');
 
-import { subjectTopicGroups } from '../src/contactQuestions.js';
+import { subjectTopicGroups } from './contactQuestions.js';
 assert.deepEqual(subjectTopicGroups.map(group => group.names), [['Création web', 'Conseil IT', 'Support IT'], ['Formations', 'Logiciels']]);
 assert.deepEqual([...subjectTopicGroups.flatMap(group => group.names), 'Autre besoin'], subjectTopics);
