@@ -4,7 +4,7 @@ Service Node (sans framework) appelé par le formulaire du site sur `POST /api/c
 Au clic sur « Envoyer ma demande », il :
 
 1. **enregistre** la demande dans PostgreSQL (`site.contact_submissions`) — c'est ce qui déclenche la confirmation affichée au client ;
-2. **envoie l'e-mail** de notification (modèle « Une nouvelle demande vous attend ») ;
+2. **envoie l'e-mail** de notification (modèle « Une nouvelle demande vous attend »), puis, une fois celui-ci parti, un **accusé de réception au client** (sujet, date, référence — jamais son message ni ses réponses ; envoyé au plus une fois, échec tracé dans `site.contact_events` sans relance) ;
 3. **crée la demande dans Genesis CRM** via `POST /api/sales/public/leads`, avec un récapitulatif complet en lecture seule.
 
 Les opérations 2 et 3 sont indépendantes et relancées automatiquement en cas d'échec. Le navigateur ne voit jamais le jeton Genesis ni les identifiants SMTP.

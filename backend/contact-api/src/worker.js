@@ -3,9 +3,23 @@
 // Sûr avec plusieurs instances (FOR UPDATE SKIP LOCKED + bail `locked_until`).
 
 import { config } from "./config.js";
-import { sendNotification } from "./email.js";
+import { sendConfirmation, sendNotification } from "./email.js";
 import { pushToGenesis } from "./genesis.js";
-import { claimDueOperations, getSubmission, markFailed, markSucceeded } from "./store.js";
+import { claimDueOperations, getSubmission, markFailed, markSucceeded, recordEvent } from "./store.js";
+
+/**
+ * Accusé de réception au client, une fois la notification interne enregistrée comme partie
+ * (donc au plus une fois par demande). Son échec est tracé dans l'historique mais ne remet
+ * jamais en cause la notification ni la demande.
+ */
+async function confirmToClient(row) {
+  try {
+    const messageId = await sendConfirmation(row);
+    await recordEvent(row.id, "email", "confirmation_sent", messageId);
+  } catch (error) {
+    await recordEvent(row.id, "email", "confirmation_failed", error?.message ?? error).catch(() => {});
+  }
+}
 
 const handlers = {
   email: (row) => sendNotification(row),
@@ -37,6 +51,8 @@ export async function runOperation({ submission_id: id, kind, attempts }, log) {
     const externalId = await handler(row);
     await markSucceeded(id, kind, externalId ?? null);
     log.info?.({ id, kind, attempts, externalId }, "Opération réussie");
+    // Après le marquage « succeeded » : un arrêt brutal ici ne renvoie jamais la notification.
+    if (kind === "email") await confirmToClient(row);
   } catch (error) {
     const retryAt = nextRetryAt(attempts, error?.retryable !== false);
     await markFailed(id, kind, error, retryAt);

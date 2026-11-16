@@ -244,6 +244,18 @@ async function scenarios() {
   assert.equal(m1.mail.attachments.length, 1);
   ok("e-mail reçu par SMTP authentifié : modèle, destinataire, Reply-To client, tous les champs, logo");
 
+  const confirmations = await waitFor(async () => { const found = inbox.filter((m) => m.mail.headers.get("x-prodigital-confirmation") === id1); return found.length && found; }, "accusé de réception client");
+  assert.equal(confirmations.length, 1);
+  const c1 = confirmations[0].mail;
+  assert.equal(c1.to.value[0].address, "camille.nova+1@example.com");
+  assert.equal(c1.replyTo.value[0].address, "contact@pro-digital.net");
+  assert.equal(c1.from.value[0].name, "ProDigital");
+  assert.equal(c1.subject, "Nous avons bien reçu votre demande — Création web");
+  for (const expected of ["Votre demande a bien été reçue.", "Bonjour Camille", "Création web", id1]) assert.ok(c1.html.includes(expected) && c1.text.includes(expected), `accusé sans « ${expected} »`);
+  for (const absent of ["Budget envisagé", "www.atelier-nova.example", "Répondre à la demande"]) assert.ok(!c1.html.includes(absent), `accusé avec « ${absent} »`);
+  assert.equal((await sql("SELECT count(*)::int AS n FROM site.contact_events WHERE submission_id = $1 AND event = 'confirmation_sent'", [id1])).rows[0].n, 1);
+  ok("accusé de réception envoyé au client : 1 seul, Reply-To ProDigital, sans message ni réponses du formulaire, tracé");
+
   const leads1 = await leadsFor("camille.nova+1@example.com");
   assert.equal(leads1.length, 1);
   assert.equal(leads1[0].id, s1.crm.external_id);
@@ -293,7 +305,7 @@ async function scenarios() {
   assert.equal((await post(webRequest(3), { headers: { Origin: "https://site-pirate.example" } })).status, 403);
   assert.equal(await count("site.contact_submissions"), 2);
   ok("7 envois invalides refusés (400/403), aucune ligne créée, aucune confirmation");
-  const support = await post({ ...person(4), subject: "Support IT", answers: { supportNeed: "Une assistance au quotidien pour nos utilisateurs", teamSize: "11 à 50", budget: "De 200 à 500 € par mois", phone: "06 12 34 56 78" }, message: "Nous cherchons un prestataire pour le support de nos 20 postes." });
+  const support = await post({ ...person(4), subject: "Support & Assistance IT", answers: { supportNeed: "Une assistance au quotidien pour nos utilisateurs", teamSize: "11 à 50", budget: "De 200 à 500 € par mois", phone: "06 12 34 56 78" }, message: "Nous cherchons un prestataire pour le support de nos 20 postes." });
   assert.equal(support.status, 201);
   await settled(support.data.id, { email: "succeeded", crm: "succeeded" });
   assert.ok(mailsFor(support.data.id)[0].mail.html.includes("06 12 34 56 78"));

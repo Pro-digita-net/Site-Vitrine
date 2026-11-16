@@ -111,6 +111,14 @@ export async function markSucceeded(id, kind, externalId) {
   });
 }
 
+/** Ajoute une ligne à l'historique d'une demande. */
+export async function recordEvent(id, kind, event, detail = null) {
+  await getPool().query(
+    "INSERT INTO site.contact_events (submission_id, kind, event, detail) VALUES ($1, $2, $3, $4)",
+    [id, kind, event, detail === null ? null : String(detail).slice(0, 1000)],
+  );
+}
+
 /** Échec d'une tentative : nouvelle tentative planifiée, ou abandon si `retryAt` est null. */
 export async function markFailed(id, kind, error, retryAt) {
   const message = String(error?.message ?? error).slice(0, 1000);

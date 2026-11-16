@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { getContactQuestions, subjectGroups } from "../../../shared/contactQuestions.js";
 import { explainStorageFailure, validationSummary } from "../src/app.js";
-import { explainSmtpFailure, notificationHtml, notificationRows, notificationSubject, notificationText } from "../src/email.js";
+import { confirmationHtml, confirmationRows, confirmationSubject, confirmationText, explainSmtpFailure, notificationHtml, notificationRows, notificationSubject, notificationText } from "../src/email.js";
 import { genesisIdempotencyKey, genesisPayload } from "../src/genesis.js";
 import { naturalKey, parseSubmission, requestHash, ValidationError } from "../src/submission.js";
 import { genesisComment } from "../src/summary.js";
@@ -79,6 +79,23 @@ test("l'e-mail suit le modèle et échappe le contenu du client", () => {
   assert.deepEqual(notificationRows(row).slice(0, 4).map((r) => r[0]), ["Contact", "E-mail", "Entreprise", "Expertise"]);
   assert.ok(notificationText(row).includes("Budget envisagé : De 1 000 à 3 000 €"));
   assert.ok(!/[\r\n]/.test(notificationSubject({ ...row, subject: "Création web\r\nBcc: x@y.z" })));
+});
+
+test("l'accusé de réception client reste minimal et échappe le contenu", () => {
+  const row = stored({ ...base, given_name: "<i>Camille</i>", message: "Contenu confidentiel du message" });
+  const html = confirmationHtml(row);
+  const text = confirmationText(row);
+  for (const expected of ["Votre demande a bien été reçue.", "Accusé de réception", "Sujet", "Reçue le", row.id, "L’équipe ProDigital"]) {
+    assert.ok(html.includes(expected), expected);
+  }
+  assert.ok(html.includes("&lt;i&gt;Camille&lt;/i&gt;") && !html.includes("<i>Camille</i>"));
+  // Ni le message, ni les réponses du formulaire, ni les éléments internes.
+  for (const absent of ["Contenu confidentiel", "Budget envisagé", "Répondre à la demande", "mailto:"]) {
+    assert.ok(!html.includes(absent) && !text.includes(absent), absent);
+  }
+  assert.deepEqual(confirmationRows(row).map((r) => r[0]), ["Sujet", "Reçue le", "Référence"]);
+  assert.ok(text.includes(`Référence : ${row.id}`));
+  assert.ok(!/[\r\n]/.test(confirmationSubject({ ...row, subject: "Création web\r\nBcc: x@y.z" })));
 });
 
 test("chaque échec d'enregistrement nomme sa cause", () => {

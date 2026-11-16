@@ -131,6 +131,125 @@ export function notificationText(row) {
   ].join("\n");
 }
 
+// ───────────── Accusé de réception envoyé au client ─────────────
+// Volontairement minimal : ni le message ni les réponses du formulaire ne sont
+// recopiés, pour qu'une adresse saisie par erreur (ou par malveillance) ne
+// reçoive aucun contenu libre.
+
+const receivedOn = (row) =>
+  new Intl.DateTimeFormat("fr-FR", { dateStyle: "long", timeStyle: "short", timeZone: "Europe/Paris" }).format(new Date(row.created_at ?? Date.now()));
+
+export function confirmationRows(row) {
+  return [
+    ["Sujet", row.subject],
+    ["Reçue le", receivedOn(row)],
+    ["Référence", row.id],
+  ];
+}
+
+export function confirmationSubject(row) {
+  return headerSafe(`Nous avons bien reçu votre demande — ${row.subject}`);
+}
+
+export function confirmationHtml(row) {
+  const site = config.publicSiteUrl;
+  const siteLabel = site.replace(/^https?:\/\//, "");
+  const tableRows = confirmationRows(row)
+    .map(([label, value]) => `<tr>
+              <td valign="top" style="border-bottom:1px solid ${C.border};padding:11px 12px 11px 0;width:34%;font:400 13px/1.5 ${FONT};color:${C.muted};">${escape(label)}</td>
+              <td valign="top" style="border-bottom:1px solid ${C.border};padding:11px 0;font:400 13px/1.5 ${FONT};color:${C.ink};word-break:break-word;">${escape(value)}</td>
+            </tr>`)
+    .join("\n");
+
+  return `<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light only">
+<title>Votre demande a bien été reçue</title>
+</head>
+<body style="margin:0;padding:0;background:${C.page};">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">Votre demande est enregistrée, notre équipe revient vers vous rapidement.</div>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:${C.page};">
+  <tr>
+    <td align="center" style="padding:24px 12px;">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:560px;background:${C.card};border:1px solid ${C.border};border-radius:14px;">
+        <tr>
+          <td style="padding:20px 28px;border-bottom:1px solid ${C.border};">
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr>
+              <td style="padding-right:12px;"><img src="cid:${LOGO_CID}" width="28" height="28" alt="" style="display:block;border:0;"></td>
+              <td style="font:700 18px/1 ${FONT};color:${C.ink};letter-spacing:-0.2px;">ProDigital</td>
+            </tr></table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:26px 28px 6px;">
+            <p style="margin:0 0 12px;font:700 10px/1.4 ${FONT};letter-spacing:2px;text-transform:uppercase;color:${C.blue};">Accusé de réception</p>
+            <h1 style="margin:0 0 14px;font:700 24px/1.25 ${FONT};color:${C.ink};letter-spacing:-0.4px;">Votre demande a bien été reçue.</h1>
+            <p style="margin:0 0 18px;font:400 14px/1.6 ${FONT};color:${C.ink};">Bonjour ${escape(row.given_name)},<br>merci de nous avoir contactés. Votre demande est enregistrée et notre équipe vous répondra à cette adresse dans les meilleurs délais.</p>
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse;">
+            ${tableRows}
+            </table>
+            <div style="margin:22px 0 20px;background:${C.soft};border-radius:10px;padding:14px 16px;font:400 13px/1.65 ${FONT};color:${C.ink};">Une précision à ajouter ? Répondez simplement à ce message : il arrivera directement à notre équipe.</div>
+            <p style="margin:0 0 24px;font:400 13px/1.6 ${FONT};color:${C.ink};">À très bientôt,<br>L’équipe ProDigital</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:16px 28px;border-top:1px solid ${C.border};background:#fafbfc;border-radius:0 0 14px 14px;">
+            <p style="margin:0 0 4px;font:400 10px/1.6 ${FONT};color:${C.muted};">Message envoyé automatiquement à la suite d’une demande déposée sur notre site. Si vous n’en êtes pas à l’origine, vous pouvez l’ignorer.</p>
+            <a href="${escape(site)}" style="font:400 10px/1.6 ${FONT};color:${C.blue};text-decoration:underline;">${escape(siteLabel)}</a>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>`;
+}
+
+export function confirmationText(row) {
+  return [
+    `Bonjour ${row.given_name},`,
+    "",
+    "Votre demande a bien été reçue. Notre équipe vous répondra à cette adresse dans les meilleurs délais.",
+    "",
+    ...confirmationRows(row).map(([label, value]) => `${label} : ${value}`),
+    "",
+    "Une précision à ajouter ? Répondez simplement à ce message.",
+    "",
+    "À très bientôt,",
+    "L’équipe ProDigital",
+    config.publicSiteUrl,
+    "",
+    "Message envoyé automatiquement à la suite d’une demande déposée sur notre site. Si vous n’en êtes pas à l’origine, vous pouvez l’ignorer.",
+  ].join("\n");
+}
+
+/** Envoie l'accusé de réception au client, par le même serveur SMTP ; renvoie le Message-ID. */
+export async function sendConfirmation(row) {
+  let info;
+  try {
+    info = await getTransport().sendMail({
+      from: { name: "ProDigital", address: config.smtp.from },
+      to: { name: fullName(row), address: row.email },
+      replyTo: config.smtp.to,
+      subject: confirmationSubject(row),
+      text: confirmationText(row),
+      html: confirmationHtml(row),
+      messageId: `<confirmation-${row.id}@pro-digital.net>`,
+      // Auto-Submitted : les répondeurs automatiques n'y répondent pas (pas de boucle).
+      headers: { "X-ProDigital-Confirmation": row.id, "Auto-Submitted": "auto-generated" },
+      attachments: [{ filename: "prodigital.png", content: LOGO, cid: LOGO_CID, contentType: "image/png" }],
+    });
+  } catch (error) {
+    throw explainSmtpFailure(error);
+  }
+  if (Array.isArray(info.rejected) && info.rejected.length) throw new Error("Adresse du client refusée par le serveur SMTP.");
+  return info.messageId ?? null;
+}
+
 let transport;
 function getTransport() {
   const smtp = config.smtp;
