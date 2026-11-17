@@ -27,7 +27,7 @@ Route : `GET /api/v1/public/cms/{organization}/{collection}` (+ médias).
 
 **Conservé** : design, animations, responsive, envoi des demandes et e-mails.
 
-**Correctif** : cartes « Nos expertises » / grilles projets — révélation GSAP au chargement (plus d’`autoAlpha: 0` bloqué au scroll).
+**Correctif** : Accueil / Studio / Expertises — plus de masquage GSAP (`autoAlpha: 0`) sur cartes, boutons et grilles ; contenu toujours visible.
 
 ### Coolify — service `site` (build)
 

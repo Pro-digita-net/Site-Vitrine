@@ -31,17 +31,8 @@ const SCROLL_HEADINGS = [
   ".studio-values h2",
 ].join(",");
 
-// Groupes révélés au scroll ; chaque entrée forme sa propre cascade.
-const   SCROLL_GROUPS = [
-  ".offer-strip > *",
-  // Le titre « vision » garde son retour à la ligne conditionnel : fondu simple, sans découpe.
-  ".vision > .eyebrow, .vision > div > *",
-  ".section-heading .eyebrow, .section-heading > p, .section-heading > .quiet-link, .section-intro",
-  // services-grid / projects-grid : animés au chargement (intro) pour éviter autoAlpha:0 bloqué.
-  ".expertise-panel",
-  ".situations-grid > *",
-  ".home-solutions .products-grid > *",
-  ".home-formations .products-grid > *",
+// Groupes révélés au scroll — hors Accueil / Studio / Expertises (contenu toujours visible).
+const SCROLL_GROUPS = [
   ".catalog-footer",
   ".catalog-controls, .filter-list",
   ".catalog-help",
@@ -52,7 +43,6 @@ const   SCROLL_GROUPS = [
   ".questions > *",
   ".project-list-item",
   ".case-image",
-  ".studio-values > .eyebrow, .studio-values > p",
   ".contact-band .eyebrow, .contact-side > *",
   ".footer-top > *, .footer-bottom",
 ];
@@ -89,7 +79,7 @@ function intro() {
     gsap.delayedCall(0.2, () => (headerShown = true));
   }
 
-  gsap.from(".breadcrumb", { autoAlpha: 0, duration: 0.6, ease: "power2.out" });
+  gsap.from(".breadcrumb", { autoAlpha: 0, duration: 0.6, ease: "power2.out", clearProps: "all" });
 
   gsap.utils.toArray(INTRO_BLOCKS).forEach((block) => {
     const title = block.querySelector(":scope > h1");
@@ -101,6 +91,7 @@ function intro() {
       duration: 0.9,
       ease: "power3.out",
       stagger: (i) => (i === 0 ? 0.05 : 0.3 + Math.min(i, 8) * 0.08),
+      clearProps: "all",
     });
   });
 
@@ -122,14 +113,16 @@ function intro() {
     duration: 0.8,
     ease: "power3.out",
     delay: 0.95,
+    clearProps: "all",
   });
-  gsap.from(".art-caption", { autoAlpha: 0, duration: 0.8, delay: 1.1 });
+  gsap.from(".art-caption", { autoAlpha: 0, duration: 0.8, delay: 1.1, clearProps: "all" });
   gsap.from(".hero-mobile-foot", {
     autoAlpha: 0,
     y: 18,
     duration: 0.9,
     ease: "power3.out",
     delay: 0.55,
+    clearProps: "all",
   });
   gsap.fromTo(
     ".service-photo img, .studio-hero > img",
@@ -148,6 +141,7 @@ function intro() {
     duration: 0.7,
     ease: "power3.out",
     delay: 0.85,
+    clearProps: "all",
   });
   gsap.from(".detail-preview, .contact-form", {
     autoAlpha: 0,
@@ -155,15 +149,17 @@ function intro() {
     duration: 1,
     ease: "power3.out",
     delay: 0.25,
+    clearProps: "all",
   });
-  // Grilles susceptibles de rester masquées si un ScrollTrigger rate : révélation au chargement.
-  gsap.from(".catalog-content .products-grid > *, .services-grid > *, .projects-grid > *", {
+  // Catalogue dynamique uniquement — Accueil / Studio / Expertises restent toujours visibles.
+  gsap.from(".catalog-content .products-grid > *", {
     autoAlpha: 0,
     y: 28,
     duration: 0.9,
     ease: "power3.out",
     stagger: 0.07,
     delay: 0.45,
+    clearProps: "all",
   });
 }
 
@@ -248,6 +244,7 @@ function scrollReveals() {
           stagger: 0.08,
           delay: settle(),
           overwrite: true,
+          clearProps: "all",
         }),
     });
   });
@@ -309,7 +306,8 @@ function methodProgress() {
     const timeline = gsap.timeline({
       scrollTrigger: { trigger: grid, start: "top 82%", once: true },
     });
-    timeline.from(steps, { opacity: 0, y: 16, duration: 0.65, stagger: 0.12, ease: "power2.out" }, 0);
+    // Pas d’opacity:0 : les étapes restent visibles sur Accueil / Studio / Expertises.
+    timeline.from(steps, { y: 16, duration: 0.65, stagger: 0.12, ease: "power2.out", clearProps: "transform" }, 0);
     nodes.forEach((node, index) => {
       const arrival = 0.35 + index * 0.95;
       if (index > 0) {
@@ -325,7 +323,7 @@ function methodProgress() {
       }, arrival);
       timeline.fromTo(steps[index].querySelector(".step-index"),
         { opacity: 0.45, y: 5 },
-        { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, arrival);
+        { opacity: 1, y: 0, duration: 0.5, ease: "power3.out", clearProps: "all" }, arrival);
     });
   });
 }
@@ -361,6 +359,20 @@ export function usePageMotion(pathname) {
         const refresh = gsap.delayedCall(0.2, () => ScrollTrigger.refresh()).pause();
         const observer = new ResizeObserver(() => refresh.restart(true));
         if (main) observer.observe(main);
+
+        // Filet de sécurité : blocs statiques Accueil / Studio / Expertises toujours visibles.
+        gsap.set([
+          ".offer-strip > *",
+          ".services-grid > *",
+          ".projects-grid > *",
+          ".home-solutions .products-grid > *",
+          ".home-formations .products-grid > *",
+          ".expertise-panel",
+          ".situations-grid > *",
+          ".method-step",
+          ".hero-actions > *",
+          ".studio-values > *",
+        ].join(","), { clearProps: "all" });
 
         return () => {
           observer.disconnect();
