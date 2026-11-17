@@ -1,4 +1,5 @@
-import { services, formations, products } from "./data.js";
+import { services as defaultServices, formations as defaultFormations, products as defaultProducts } from "./data.js";
+import { formQuestionsFor } from "./cmsCatalog.js";
 
 const select = (id, label, options, required = false) => ({ id, label, options, required, type: "select" });
 const text = (id, label, placeholder, required = false) => ({ id, label, placeholder, required, type: "text" });
@@ -6,42 +7,90 @@ const deadline = select("deadline", "Échéance souhaitée", ["Dès que possible
 const budget = select("budget", "Budget envisagé", ["Moins de 1 000 €", "De 1 000 à 3 000 €", "De 3 000 à 10 000 €", "Plus de 10 000 €", "À définir ensemble"]);
 const teamSize = select("teamSize", "Nombre de personnes concernées", ["Moi uniquement", "2 à 10", "11 à 50", "51 à 250", "Plus de 250", "À préciser"]);
 
+function cat(override) {
+  return {
+    services: override?.services ?? defaultServices,
+    formations: override?.formations ?? defaultFormations,
+    products: override?.products ?? defaultProducts,
+  };
+}
+
 export const subjectGroups = [
-  { label: "Nos expertises", items: services },
-  { label: "Nos formations", items: formations },
-  { label: "Nos logiciels à venir", items: products },
+  { label: "Nos expertises", items: defaultServices },
+  { label: "Nos formations", items: defaultFormations },
+  { label: "Nos logiciels à venir", items: defaultProducts },
 ];
-export const isKnownSubject = (subject) => subject === "Autre besoin" || subjectGroups.some(group => group.items.some(item => item.name === subject));
-// Premier choix du formulaire : une expertise, ou une famille (« Formations », « Logiciels »)
-// dont l'élément précis se choisit ensuite dans une seconde liste.
-const families = { Formations: formations, Logiciels: products };
-export const subjectTopics = [...services.map(item => item.name), ...Object.keys(families), "Autre besoin"];
-// Les mêmes choix, regroupés pour l'affichage : les expertises, puis les catalogues.
-export const subjectTopicGroups = [
-  { label: "Nos expertises", names: services.map(item => item.name) },
-  { label: "Nos catalogues", names: Object.keys(families) },
+
+export function isKnownSubject(subject, override) {
+  if (subject === "Autre besoin") return true;
+  const { services, formations, products } = cat(override);
+  return [services, formations, products].some((group) => group.some((item) => item.name === subject));
+}
+
+export function subjectTopicGroupsOf(override) {
+  const { services, formations, products } = cat(override);
+  const groups = [];
+  if (services.length) groups.push({ label: "Nos expertises", names: services.map((item) => item.name) });
+  const catalogs = [];
+  if (formations.length) catalogs.push("Formations");
+  if (products.length) catalogs.push("Logiciels");
+  if (catalogs.length) groups.push({ label: "Nos catalogues", names: catalogs });
+  return groups;
+}
+export const subjectTopicGroups = subjectTopicGroupsOf();
+
+export const subjectTopics = [
+  ...defaultServices.map((item) => item.name),
+  "Formations",
+  "Logiciels",
+  "Autre besoin",
 ];
-/** Premier choix correspondant à un sujet (ex. « Genesis CRM » → « Logiciels »). */
-export const topicOf = (subject) => Object.keys(families).find(topic => families[topic].some(item => item.name === subject)) || (isKnownSubject(subject) ? subject : "");
-/** Éléments d'une famille, par catégorie puis par nom ; null si le choix n'est pas une famille. */
-export function topicItems(topic) {
-  if (!families[topic]) return null;
+
+export function topicOf(subject, override) {
+  const { services, formations, products } = cat(override);
+  if (formations.some((item) => item.name === subject)) return "Formations";
+  if (products.some((item) => item.name === subject)) return "Logiciels";
+  if (services.some((item) => item.name === subject) || subject === "Autre besoin") return subject;
+  return isKnownSubject(subject, override) ? subject : "";
+}
+
+export function topicItems(topic, override) {
+  const { formations, products } = cat(override);
+  const family = { Formations: formations, Logiciels: products }[topic];
+  if (!family?.length) return null;
   const byName = (a, b) => a.localeCompare(b, "fr");
   const groups = new Map();
-  for (const item of families[topic]) groups.set(item.category, [...(groups.get(item.category) || []), item.name]);
+  for (const item of family) groups.set(item.category || "Autres", [...(groups.get(item.category || "Autres") || []), item.name]);
   return [...groups].sort(([a], [b]) => byName(a, b)).map(([category, names]) => ({ category, names: names.sort(byName) }));
 }
-// Libellé court du type de sujet (ligne « Expertise » de la notification e-mail).
-export function subjectGroupLabel(subject) {
-  if (services.some(item => item.name === subject)) return "Expertise";
-  if (formations.some(item => item.name === subject)) return "Formation";
-  if (products.some(item => item.name === subject)) return "Logiciel";
+
+export function subjectGroupLabel(subject, override) {
+  const { services, formations, products } = cat(override);
+  if (services.some((item) => item.name === subject)) return "Expertise";
+  if (formations.some((item) => item.name === subject)) return "Formation";
+  if (products.some((item) => item.name === subject)) return "Logiciel";
   return "Sujet";
 }
 
-export function getContactQuestions(subject) {
-  if (!isKnownSubject(subject)) return { title: "", hint: "", fields: [] };
-  const service = services.find(item => item.name === subject);
+const genericQuestions = () => ({
+  title: "Précisons votre demande",
+  hint: "Décrivez votre besoin dans le message. Ces précisions sont facultatives.",
+  fields: [text("activity", "Votre activité ou votre secteur", "Ex. : commerce, association, cabinet de conseil"), deadline],
+});
+
+/** Questions affichées : entrée CMS `forms` si publiée, sinon schémas intégrés / générique. */
+export function resolveContactQuestions(subject, catalog) {
+  if (!subject) return { title: "", hint: "", fields: [] };
+  const fromCms = formQuestionsFor(subject, catalog?.forms, catalog);
+  if (fromCms) return fromCms;
+  return getContactQuestions(subject, catalog);
+}
+
+export function getContactQuestions(subject, override) {
+  if (!subject) return { title: "", hint: "", fields: [] };
+  if (!isKnownSubject(subject, override)) return genericQuestions();
+  const { services, formations, products } = cat(override);
+  const service = services.find((item) => item.name === subject);
   if (service?.id === "creation-web") return {
     title: "Votre projet web",
     hint: "Le type de projet et son objectif nous aident à cerner le travail à prévoir.",
@@ -82,7 +131,7 @@ export function getContactQuestions(subject) {
       { ...text("phone", "Téléphone pour vous joindre", "Ex. : 06 12 34 56 78"), type: "tel" },
     ],
   };
-  if (formations.some(item => item.name === subject)) return {
+  if (formations.some((item) => item.name === subject)) return {
     title: "Votre besoin de formation",
     hint: "Votre objectif et votre niveau nous aident à vous orienter vers un contenu adapté.",
     fields: [
@@ -94,7 +143,7 @@ export function getContactQuestions(subject) {
       deadline,
     ],
   };
-  const product = products.find(item => item.name === subject);
+  const product = products.find((item) => item.name === subject);
   if (product) return {
     title: "Vos attentes pour ce futur logiciel",
     hint: "Ce logiciel est à venir. Vos réponses nous aident à comprendre vos usages ; il ne s’agit pas d’une commande.",
@@ -114,17 +163,13 @@ export function getContactQuestions(subject) {
       deadline,
     ],
   };
-  return {
-    title: "Précisons votre demande",
-    hint: "Décrivez votre besoin dans le message. Ces précisions sont facultatives.",
-    fields: [text("activity", "Votre activité ou votre secteur", "Ex. : commerce, association, cabinet de conseil"), deadline],
-  };
+  return genericQuestions();
 }
 
-export function buildContactMessage(form, answers) {
-  const details = getContactQuestions(form.subject).fields
-    .filter(field => String(answers[field.id] ?? "").trim())
-    .map(field => `${field.label} : ${String(answers[field.id]).trim()}`);
+export function buildContactMessage(form, answers, catalog) {
+  const details = resolveContactQuestions(form.subject, catalog).fields
+    .filter((field) => String(answers[field.id] ?? "").trim())
+    .map((field) => `${field.label} : ${String(answers[field.id]).trim()}`);
   return [
     "Bonjour ProDigital,", form.message.trim(),
     `Sujet : ${form.subject || "À définir"}`,

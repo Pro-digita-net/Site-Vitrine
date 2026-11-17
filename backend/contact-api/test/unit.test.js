@@ -29,7 +29,9 @@ test("exige les champs obligatoires du sujet, refuse les valeurs hors liste", ()
   };
   assert.deepEqual(errors({ ...base, answers: {} }), ["answers.projectType", "answers.goal"]);
   assert.deepEqual(errors({ ...base, answers: { ...base.answers, budget: "1 million" } }), ["answers.budget"]);
-  assert.deepEqual(errors({ ...base, subject: "Sujet inventé" }), ["subject"]);
+  // Sujet CMS libre : questions génériques (facultatives) — pas de rejet sur le libellé.
+  assert.deepEqual(errors({ ...base, subject: "Sujet inventé", answers: {} }), []);
+  assert.deepEqual(errors({ ...base, subject: "x".repeat(121) }), ["subject"]);
   assert.deepEqual(errors({ ...base, email: "pas-un-email", message: "court" }), ["email", "message"]);
   assert.deepEqual(errors({}), ["given_name", "family_name", "email", "subject", "message"]);
 });

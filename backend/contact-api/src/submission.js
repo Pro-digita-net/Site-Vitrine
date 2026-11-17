@@ -3,7 +3,7 @@
 // module déjà utilisé par le formulaire du site.
 
 import { createHash } from "node:crypto";
-import { getContactQuestions, isKnownSubject, subjectGroupLabel } from "../../../shared/contactQuestions.js";
+import { getContactQuestions, subjectGroupLabel } from "../../../shared/contactQuestions.js";
 
 const LIMITS = { name: 80, email: 254, company: 150, message: 5000, answer: 400 };
 const EMAIL_RE = /^[^\s@<>"(),;:]+@[^\s@<>"(),;:]+\.[^\s@<>"(),;:]{2,}$/;
@@ -51,24 +51,24 @@ export function parseSubmission(body) {
   else if (family_name.length > LIMITS.name) fail("family_name", "Le nom est trop long.");
   if (!email || email.length > LIMITS.email || !EMAIL_RE.test(email)) fail("email", "Merci d’indiquer une adresse e-mail valide.");
   if (company.length > LIMITS.company) fail("company", "Le nom de l’entreprise est trop long.");
-  if (!isKnownSubject(subject)) fail("subject", "Merci de choisir un sujet dans la liste.");
+  // Sujets CMS publiés acceptés (liste ouverte) ; schémas intégrés pour les sujets connus, sinon générique.
+  if (!subject) fail("subject", "Merci de choisir un sujet dans la liste.");
+  else if (subject.length > 120) fail("subject", "Le sujet est trop long.");
   if (message.length < 10) fail("message", "Décrivez votre demande en au moins 10 caractères.");
   else if (message.length > LIMITS.message) fail("message", "Votre message est trop long (5 000 caractères maximum).");
 
   // Seuls les champs du sujet choisi sont retenus, dans l'ordre du formulaire.
   const answers = input.answers && typeof input.answers === "object" && !Array.isArray(input.answers) ? input.answers : {};
   const details = [];
-  if (isKnownSubject(subject)) {
-    for (const field of getContactQuestions(subject).fields) {
-      const value = line(answers[field.id]);
-      if (!value) {
-        if (field.required) fail(`answers.${field.id}`, `Merci de renseigner « ${field.label} ».`);
-        continue;
-      }
-      if (value.length > LIMITS.answer) fail(`answers.${field.id}`, `La réponse « ${field.label} » est trop longue.`);
-      else if (field.type === "select" && !field.options.includes(value)) fail(`answers.${field.id}`, `Merci de choisir une réponse proposée pour « ${field.label} ».`);
-      else details.push({ id: field.id, label: field.label, value, required: Boolean(field.required) });
+  for (const field of getContactQuestions(subject).fields) {
+    const value = line(answers[field.id]);
+    if (!value) {
+      if (field.required) fail(`answers.${field.id}`, `Merci de renseigner « ${field.label} ».`);
+      continue;
     }
+    if (value.length > LIMITS.answer) fail(`answers.${field.id}`, `La réponse « ${field.label} » est trop longue.`);
+    else if (field.type === "select" && !field.options.includes(value)) fail(`answers.${field.id}`, `Merci de choisir une réponse proposée pour « ${field.label} ».`);
+    else details.push({ id: field.id, label: field.label, value, required: Boolean(field.required) });
   }
 
   if (errors.length) throw new ValidationError(errors);

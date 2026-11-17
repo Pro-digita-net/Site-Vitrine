@@ -46,13 +46,10 @@ import {
   Clock3,
 } from "lucide-react";
 import {
-  products,
-  formations,
-  services,
   expertiseSituations,
-  projects,
   contactEmail,
 } from "../../shared/data.js";
+import { ContentProvider, useCatalog } from "./cms.jsx";
 import { usePageMotion } from "./motion";
 import { updateMetadata } from "./seo.js";
 import ContactForm from "./ContactForm.jsx";
@@ -542,6 +539,7 @@ function FormationCard({ formation }) {
   );
 }
 function ServiceCards() {
+  const { services } = useCatalog();
   return (
     <div className="services-grid">
       {services.map((service) => (
@@ -675,6 +673,7 @@ function Method({
   );
 }
 function Home() {
+  const { products, formations, services, projects } = useCatalog();
   return (
     <>
       <section className="hero container">
@@ -874,6 +873,7 @@ function Home() {
 }
 
 function Catalog() {
+  const { products } = useCatalog();
   const [params, setParams] = useSearchParams();
   const query = params.get("q") || "";
   const category = params.get("categorie") || "Tous les usages";
@@ -1014,6 +1014,7 @@ function Catalog() {
   );
 }
 function ProductDetail() {
+  const { products } = useCatalog();
   const { id } = useParams();
   const product = products.find((p) => p.id === id);
   if (!product) return <NotFound />;
@@ -1104,6 +1105,7 @@ function ProductDetail() {
   );
 }
 function FormationsCatalog() {
+  const { formations } = useCatalog();
   const [params, setParams] = useSearchParams();
   const query = params.get("q") || "";
   const category = params.get("categorie") || "Tous les thèmes";
@@ -1254,6 +1256,7 @@ function FormationsCatalog() {
   );
 }
 function FormationDetail() {
+  const { formations } = useCatalog();
   const { id } = useParams();
   const formation = formations.find((f) => f.id === id);
   if (!formation) return <NotFound />;
@@ -1358,6 +1361,7 @@ function FormationDetail() {
   );
 }
 function ExpertiseIndex() {
+  const { services } = useCatalog();
   return (
     <>
       <Breadcrumb items={[{ label: "Nos expertises" }]} />
@@ -1484,6 +1488,7 @@ function ExpertiseIndex() {
   );
 }
 function ServiceDetail() {
+  const { services } = useCatalog();
   const { id } = useParams();
   const service = services.find((s) => s.id === id);
   if (!service) return <NotFound />;
@@ -1583,6 +1588,7 @@ function ServiceDetail() {
   );
 }
 function Projects() {
+  const { projects } = useCatalog();
   return (
     <>
       <Breadcrumb items={[{ label: "Projets" }]} />
@@ -1623,6 +1629,7 @@ function Projects() {
   );
 }
 function ProjectDetail() {
+  const { projects } = useCatalog();
   const { id } = useParams();
   const project = projects.find((p) => p.id === id);
   if (!project) return <NotFound />;
@@ -1863,9 +1870,11 @@ export function Shell() {
 }
 function App() {
   return (
-    <BrowserRouter>
-      <Shell />
-    </BrowserRouter>
+    <ContentProvider>
+      <BrowserRouter>
+        <Shell />
+      </BrowserRouter>
+    </ContentProvider>
   );
 }
 if (typeof document !== "undefined") {

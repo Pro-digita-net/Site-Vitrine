@@ -3,10 +3,17 @@
 
 ARG NODE_VERSION=22
 ARG NGINX_VERSION=1.28
+ARG VITE_CMS_URL=
+ARG VITE_CMS_ORG=
 
 # --- 1. Build -----------------------------------------------------------------
 FROM node:${NODE_VERSION}-alpine AS build
 WORKDIR /app/frontend
+
+ARG VITE_CMS_URL
+ARG VITE_CMS_ORG
+ENV VITE_CMS_URL=$VITE_CMS_URL
+ENV VITE_CMS_ORG=$VITE_CMS_ORG
 
 # Dépendances d'abord : couche mise en cache tant que le lockfile ne change pas.
 COPY frontend/package.json frontend/package-lock.json ./

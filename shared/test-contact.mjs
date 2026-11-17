@@ -14,20 +14,21 @@ for (const subject of subjects) {
   assert.ok(!message.includes('DO_NOT_EXPORT'));
   assert.ok(message.includes('Entreprise : Non précisée'));
 }
-const form = { subject: 'Support IT', given_name: 'Test', family_name: 'Nom', email: 'test@example.com', company: '', message: 'Un besoin de support informatique.' };
+const supportName = subjectGroups[0].items.find((item) => item.id === 'support-it').name;
+const form = { subject: supportName, given_name: 'Test', family_name: 'Nom', email: 'test@example.com', company: '', message: 'Un besoin de support informatique.' };
 const message = buildContactMessage(form, { projectType: 'Créer une boutique en ligne', supportNeed: 'Renforcer notre équipe informatique', environment: '   ' });
 assert.ok(!message.includes('boutique'));
 assert.ok(!message.includes('Équipements et logiciels à couvrir'));
 assert.ok(message.includes('Renforcer notre équipe informatique'));
-assert.deepEqual(getContactQuestions('Sujet inconnu').fields, []);
+assert.deepEqual(getContactQuestions('Sujet inconnu').fields.map((f) => f.id), ['activity', 'deadline']);
 assert.equal(isKnownSubject('Sujet inconnu'), false);
-assert.deepEqual(getContactQuestions('Support IT').fields.filter(field => field.required).map(field => field.id), ['supportNeed', 'teamSize']);
+assert.deepEqual(getContactQuestions(supportName).fields.filter(field => field.required).map(field => field.id), ['supportNeed', 'teamSize']);
 console.log(`${subjects.length} sujets vérifiés : questions, champs essentiels, export complet et exclusion des anciennes réponses.`);
 
 // Premier choix du formulaire : expertises, deux familles, « Autre besoin ».
 import { subjectTopics, topicItems, topicOf } from './contactQuestions.js';
-assert.deepEqual(subjectTopics, ['Création web', 'Conseil IT', 'Support IT', 'Formations', 'Logiciels', 'Autre besoin']);
-assert.equal(topicItems('Support IT'), null);
+assert.deepEqual(subjectTopics, [...subjectGroups[0].items.map((item) => item.name), 'Formations', 'Logiciels', 'Autre besoin']);
+assert.equal(topicItems(supportName), null);
 for (const topic of ['Formations', 'Logiciels']) {
   const groups = topicItems(topic);
   const categories = groups.map(group => group.category);
@@ -40,10 +41,10 @@ for (const topic of ['Formations', 'Logiciels']) {
 assert.equal(topicItems('Formations').flatMap(group => group.names).length, subjectGroups[1].items.length);
 assert.equal(topicItems('Logiciels').flatMap(group => group.names).length, subjectGroups[2].items.length);
 assert.equal(topicOf('Genesis CRM'), 'Logiciels');
-assert.equal(topicOf('Support IT'), 'Support IT');
+assert.equal(topicOf(supportName), supportName);
 assert.equal(topicOf('Sujet inconnu'), '');
 console.log('Sujets en deux niveaux vérifiés : familles, tri par catégorie puis par nom.');
 
 import { subjectTopicGroups } from './contactQuestions.js';
-assert.deepEqual(subjectTopicGroups.map(group => group.names), [['Création web', 'Conseil IT', 'Support IT'], ['Formations', 'Logiciels']]);
+assert.deepEqual(subjectTopicGroups.map(group => group.names), [subjectGroups[0].items.map((item) => item.name), ['Formations', 'Logiciels']]);
 assert.deepEqual([...subjectTopicGroups.flatMap(group => group.names), 'Autre besoin'], subjectTopics);

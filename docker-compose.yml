@@ -19,6 +19,9 @@ services:
       args:
         NODE_VERSION: ${NODE_VERSION:-22}
         NGINX_VERSION: ${NGINX_VERSION:-1.28}
+        # Origine publique Core + slug organisation (lecture CMS sans auth).
+        VITE_CMS_URL: ${VITE_CMS_URL:-}
+        VITE_CMS_ORG: ${VITE_CMS_ORG:-}
     restart: unless-stopped
     expose:
       - "8080"

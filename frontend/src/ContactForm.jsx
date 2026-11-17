@@ -1,7 +1,15 @@
 import React, { useRef, useState } from "react";
 import { ArrowUpRight, Check, CircleAlert, Download, Mail, Plus } from "lucide-react";
 import { contactEmail } from "../../shared/data.js";
-import { buildContactMessage, getContactQuestions, isKnownSubject, subjectTopicGroups, topicItems, topicOf } from "../../shared/contactQuestions.js";
+import {
+  buildContactMessage,
+  isKnownSubject,
+  resolveContactQuestions,
+  subjectTopicGroupsOf,
+  topicItems,
+  topicOf,
+} from "../../shared/contactQuestions.js";
+import { useCatalog } from "./cms.jsx";
 
 const ENDPOINT = "/api/contact-requests";
 const EMPTY = { given_name: "", family_name: "", email: "", company: "", subject: "", message: "" };
@@ -115,10 +123,12 @@ function Question({ field, value, onChange, disabled, hideOptionalTag = false, w
 }
 
 export default function ContactForm({ initialSubject = "" }) {
-  const [form, setForm] = useState({ ...EMPTY, subject: isKnownSubject(initialSubject) ? initialSubject : "" });
+  const catalog = useCatalog();
+  const knownInitial = isKnownSubject(initialSubject, catalog) ? initialSubject : "";
+  const [form, setForm] = useState({ ...EMPTY, subject: knownInitial });
   // Premier choix (expertise, « Formations », « Logiciels »…) ; `form.subject` reste le sujet précis.
-  const [topic, setTopic] = useState(topicOf(initialSubject));
-  const family = topicItems(topic); // catégories → noms, si le premier choix est une famille
+  const [topic, setTopic] = useState(topicOf(initialSubject, catalog));
+  const family = topicItems(topic, catalog);
   // Keep each subject's draft separately; only the selected subject is exported.
   const [drafts, setDrafts] = useState({});
   const [website, setWebsite] = useState(""); // champ piège anti-robots, invisible
@@ -131,12 +141,12 @@ export default function ContactForm({ initialSubject = "" }) {
   const sendingRef = useRef(false);
   const resultRef = useRef(null);
 
-  const schema = getContactQuestions(form.subject);
+  const schema = resolveContactQuestions(form.subject, catalog);
   const answers = drafts[form.subject] || {};
   const requiredFields = schema.fields.filter(field => field.required);
   const optionalFields = schema.fields.filter(field => !field.required);
   const sending = status === "sending";
-  const message = buildContactMessage(form, answers);
+  const message = buildContactMessage(form, answers, catalog);
   const emailHref = `mailto:${contactEmail}?subject=${encodeURIComponent(`Projet ProDigital — ${form.subject || "Premier échange"}`)}&body=${encodeURIComponent(message)}`;
 
   const edited = () => {
@@ -155,7 +165,7 @@ export default function ContactForm({ initialSubject = "" }) {
     event.target.setCustomValidity("");
     setTopic(value);
     // Une famille attend le choix précis dans la seconde liste ; sinon le choix est le sujet.
-    setForm(previous => ({ ...previous, subject: topicItems(value) ? "" : value }));
+    setForm(previous => ({ ...previous, subject: topicItems(value, catalog) ? "" : value }));
     edited();
   };
   const updateAnswer = (event) => {
@@ -298,7 +308,7 @@ export default function ContactForm({ initialSubject = "" }) {
       <label><span className="field-label">De quoi souhaitez-vous parler ? <span className="required" aria-hidden="true">*</span></span>
         <select name="topic" value={topic} onChange={updateTopic} required aria-describedby="subject-help" disabled={sending} data-empty={topic ? undefined : ""}>
           <option value="">Choisir un sujet</option>
-          {subjectTopicGroups.map(group => <optgroup key={group.label} label={group.label}>{group.names.map(name => <option key={name}>{name}</option>)}</optgroup>)}
+          {subjectTopicGroupsOf(catalog).map(group => <optgroup key={group.label} label={group.label}>{group.names.map(name => <option key={name}>{name}</option>)}</optgroup>)}
           <hr />
           <option>Autre besoin</option>
         </select>
