@@ -15,7 +15,7 @@ COPY backend/contact-api/src ./src
 COPY backend/contact-api/migrations ./migrations
 COPY backend/contact-api/assets ./assets
 # Sujets et champs complémentaires : la même définition que le formulaire du site.
-COPY shared/package.json shared/contactQuestions.js shared/data.js /app/shared/
+COPY shared/package.json shared/contactQuestions.js shared/data.js shared/cmsCatalog.js /app/shared/
 
 USER node
 EXPOSE 8788
