@@ -3,7 +3,6 @@ import {
   products as staticProducts,
   formations as staticFormations,
   services as staticServices,
-  projects as staticProjects,
 } from "../../shared/data.js";
 import { loadCatalog, mediaUrl } from "../../shared/cmsCatalog.js";
 
@@ -11,7 +10,6 @@ const STATIC = {
   products: staticProducts,
   formations: staticFormations,
   services: staticServices,
-  projects: staticProjects,
   forms: null,
   source: "static",
 };

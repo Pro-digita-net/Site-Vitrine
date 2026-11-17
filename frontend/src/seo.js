@@ -1,17 +1,16 @@
-import { products, formations, services, projects } from '../../shared/data.js';
+import { products, formations, services } from '../../shared/data.js';
 export const origin = 'https://pro-digital.net';
 const base = [
  ['/', 'Création de sites web, conseil et assistance informatique', 'ProDigital accompagne les professionnels : création de sites internet, conseil informatique, assistance et formations numériques. Parlons de votre projet.'],
  ['/expertises', 'Création web, conseil et support informatique', 'Découvrez les expertises ProDigital : création de sites internet, conseil informatique, formation et assistance pour les professionnels.'],
  ['/formations', 'Formations web, bureautique et informatique', 'Découvrez nos formations WordPress, Excel, Microsoft 365, sécurité numérique et intelligence artificielle. Présentez-nous vos besoins.'],
  ['/solutions', 'Nos logiciels en préparation', 'Découvrez les logiciels en préparation chez ProDigital : CRM, assistance informatique, facturation et portail client.'],
- ['/projets', 'Projets et concepts web', 'Explorez nos concepts de sites et d’interfaces : portfolio architectural et espace de travail professionnel. Découvrez notre approche du design.'],
  ['/studio', 'Le studio ProDigital', 'Découvrez ProDigital et notre approche de la création web, du conseil et de l’accompagnement informatique des professionnels.'],
  ['/contact', 'Contact et demande de projet', 'Présentez votre projet à ProDigital : création de site internet, formation, conseil ou assistance informatique. Contactez notre équipe.'],
  ['/confidentialite', 'Confidentialité et données personnelles', 'Découvrez comment ProDigital utilise les informations du formulaire de contact et comment nous contacter à propos de vos données.'],
 ];
 export const pages = Object.fromEntries(base.map(([path,title,description]) => [path,{title:title+' — ProDigital',description}]));
-for (const [prefix,items] of [['expertises',services],['formations',formations],['solutions',products],['projets',projects]]) for (const item of items) pages['/'+prefix+'/'+item.id] = {title:item.name+(prefix==='formations'?' — Formation':prefix==='solutions'?' — Logiciel en préparation':prefix==='projets'?' — Concept web':'')+' — ProDigital',description:item.description};
+for (const [prefix,items] of [['expertises',services],['formations',formations],['solutions',products]]) for (const item of items) pages['/'+prefix+'/'+item.id] = {title:item.name+(prefix==='formations'?' — Formation':prefix==='solutions'?' — Logiciel en préparation':'')+' — ProDigital',description:item.description};
 export function metadata(path) { return pages[path.replace(/\/$/,'') || '/'] || {title:'Page introuvable — ProDigital',description:'Cette page n’existe pas. Retrouvez les expertises et les formations ProDigital.',noindex:true}; }
 export function tags(path) {
  const m=metadata(path);

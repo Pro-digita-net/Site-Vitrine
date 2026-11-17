@@ -30,7 +30,6 @@ const staticCatalog = {
   products: [{ id: "static-p", name: "Static P" }],
   formations: [{ id: "static-f", name: "Static F" }],
   services: [{ id: "static-s", name: "Static S" }],
-  projects: [{ id: "static-r", name: "Static R" }],
 };
 
 const originalFetch = globalThis.fetch;
@@ -40,26 +39,22 @@ globalThis.fetch = async (url) => {
   if (path.endsWith("/formations")) {
     return { ok: true, json: async () => ({ data: [{ slug: "cms-f", content: { name: "Formation CMS", category: "Web" } }] }) };
   }
-  if (path.endsWith("/realisations")) {
-    return { ok: true, json: async () => ({ data: [{ slug: "cms-p", content: { name: "Projet CMS", description: "D", image: "/x.webp" } }] }) };
-  }
   if (path.endsWith("/forms")) return { ok: true, json: async () => ({ data: [] }) };
-  if (path.includes("/services")) throw new Error(`ne doit pas appeler ${path}`);
+  if (path.includes("/services") || path.includes("/realisations")) throw new Error(`ne doit pas appeler ${path}`);
   throw new Error(`unexpected ${path}`);
 };
 
 const loaded = await loadCatalog({ base: "https://core.test", org: "prodigital", staticCatalog });
 assert.equal(loaded.source, "cms");
-// Pages dynamiques : uniquement le publié ; aucune entrée publiée → liste vide.
 assert.deepEqual(loaded.products, []);
 assert.equal(loaded.formations[0].name, "Formation CMS");
-assert.equal(loaded.projects[0].name, "Projet CMS");
 assert.equal(loaded.services[0].name, "Static S");
 assert.equal(loaded.forms, null);
+assert.equal(loaded.projects, undefined);
 
 const offline = await loadCatalog({ base: "", org: "", staticCatalog });
 assert.equal(offline.source, "static");
 assert.equal(offline.forms, null);
 
 globalThis.fetch = originalFetch;
-console.log("cmsCatalog : SaaS/formations/projets/forms dynamiques ; expertises statiques.");
+console.log("cmsCatalog : SaaS/formations/forms dynamiques ; Projets retirés.");

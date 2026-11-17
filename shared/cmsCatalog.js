@@ -4,12 +4,11 @@
  * Une réponse 200 avec data: [] est une collection volontairement vide (pas de repli statique).
  */
 
-// Modulable via CMS (publié uniquement) : SaaS, formations, projets, formulaire.
-// Accueil, Studio et Expertises restent dans shared/data.js.
+// Modulable via CMS (publié uniquement) : SaaS, formations, formulaire.
+// Accueil, Studio et Expertises restent dans shared/data.js. Page Projets retirée.
 export const CMS_COLLECTIONS = {
   products: "saas",
   formations: "formations",
-  projects: "realisations",
   forms: "forms",
 };
 
@@ -107,27 +106,24 @@ export async function loadCatalog({ base, org, staticCatalog, signal } = {}) {
     products: staticCatalog.products,
     formations: staticCatalog.formations,
     services: staticCatalog.services,
-    projects: staticCatalog.projects,
     forms: null,
     source: "static",
   };
   if (!base || !org) return fallback;
 
-  const [saas, formations, realisations, forms] = await Promise.all([
+  const [saas, formations, forms] = await Promise.all([
     fetchCollection(base, org, CMS_COLLECTIONS.products, { signal }),
     fetchCollection(base, org, CMS_COLLECTIONS.formations, { signal }),
-    fetchCollection(base, org, CMS_COLLECTIONS.projects, { signal }),
     fetchCollection(base, org, CMS_COLLECTIONS.forms, { signal, map: (row) => mapFormEntry(row) }),
   ]);
 
   // Pages dynamiques : uniquement le publié (liste vide = rien à afficher).
   // Formulaire : sans question publiée, les questions intégrées restent actives.
-  const anyOk = [saas, formations, realisations, forms].some((r) => r.ok);
+  const anyOk = [saas, formations, forms].some((r) => r.ok);
   return {
     products: saas.ok ? saas.items : staticCatalog.products,
     formations: formations.ok ? formations.items : staticCatalog.formations,
     services: staticCatalog.services,
-    projects: realisations.ok ? realisations.items : staticCatalog.projects,
     forms: forms.ok && forms.items.length ? forms.items : null,
     source: anyOk ? "cms" : "static",
   };

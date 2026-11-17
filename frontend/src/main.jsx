@@ -49,7 +49,6 @@ import {
   products,
   formations,
   services,
-  projects,
   expertiseSituations,
   contactEmail,
 } from "../../shared/data.js";
@@ -148,7 +147,6 @@ function Header() {
           <NavLink to="/formations">
             Formations <span className="nav-tag">Petit prix</span>
           </NavLink>
-          <NavLink to="/projets">Projets</NavLink>
           <NavLink to="/solutions">
             Nos logiciels <span className="nav-tag">À venir</span>
           </NavLink>
@@ -753,47 +751,6 @@ function Home() {
             </p>
           </div>
           <ServiceCards />
-        </div>
-      </section>
-      <section className="section container">
-        <div className="section-heading split">
-          <div>
-            <Eyebrow number="04">PROJETS SÉLECTIONNÉS</Eyebrow>
-            <h2>
-              Des idées.
-              <br />
-              <em>Du caractère.</em>
-            </h2>
-          </div>
-          <Link className="quiet-link" to="/projets">
-            Explorer les projets <Arrow />
-          </Link>
-        </div>
-        <div className="projects-grid">
-          {projects.map((project, i) => (
-            <Link
-              to={`/projets/${project.id}`}
-              className={`project-card project-${i}`}
-              key={project.id}
-            >
-              <div className="project-image">
-                <img
-                  src={project.image}
-                  alt={`Interface du concept ${project.name}`}
-                  loading="lazy"
-                  decoding="async"
-                />
-                <span className="project-badge">PROJET CONCEPT</span>
-                <span className="round-arrow">
-                  <Arrow />
-                </span>
-              </div>
-              <div className="project-caption">
-                <h3>{project.name}</h3>
-                <span>{project.category}</span>
-              </div>
-            </Link>
-          ))}
         </div>
       </section>
       <Method />
@@ -1587,91 +1544,6 @@ function ServiceDetail() {
     </>
   );
 }
-function Projects() {
-  const { projects: items } = useCatalog();
-  return (
-    <>
-      <Breadcrumb items={[{ label: "Projets" }]} />
-      <section className="container page-heading">
-        <Eyebrow number="EXPLORATIONS">DESIGN & INTERFACES</Eyebrow>
-        <h1>
-          Donner forme
-          <br />
-          <em>aux idées.</em>
-        </h1>
-        <p>
-          Deux projets concepts pour expliquer nos choix de design et d’organisation des contenus.
-          <br className="desktop-break" /> Des explorations de conception,
-          sans commande client ni résultats commerciaux revendiqués.
-        </p>
-      </section>
-      <section className="container project-list">
-        {items.map((p, i) => (
-          <Link
-            key={p.id}
-            className="project-list-item"
-            to={`/projets/${p.id}`}
-          >
-            <div>
-              <Eyebrow number={`0${i + 1}`}>PROJET CONCEPT</Eyebrow>
-              <h2>{p.name}</h2>
-              <p>{p.description}</p>
-              <span className="text-link">
-                Découvrir le projet <Arrow />
-              </span>
-            </div>
-            <img src={p.image} alt={`Aperçu du concept ${p.name}`} decoding="async" />
-          </Link>
-        ))}
-      </section>
-      <ContactBand />
-    </>
-  );
-}
-function ProjectDetail() {
-  const { projects: items } = useCatalog();
-  const { id } = useParams();
-  const project = items.find((p) => p.id === id);
-  if (!project) return <NotFound />;
-  return (
-    <>
-      <Breadcrumb
-        items={[{ label: "Projets", to: "/projets" }, { label: project.name }]}
-      />
-      <section className="container page-heading">
-        <Eyebrow number="PROJET CONCEPT">{project.category}</Eyebrow>
-        <h1>{project.name}</h1>
-        <p>{project.description}</p>
-      </section>
-      <div className="container case-image">
-        <img
-          src={project.image}
-          alt={`Interface complète du projet concept ${project.name}`}
-        />
-      </div>
-      <section className="container section detail-grid">
-        <div>
-          <Eyebrow number="L’INTENTION">{project.title}</Eyebrow>
-          <h2>
-            Chaque choix
-            <br />
-            <em>a son rôle.</em>
-          </h2>
-          <p>{project.challenge}</p>
-        </div>
-        <div className="feature-list">
-          {project.choices.map((choice, i) => (
-            <div key={choice}>
-              <span>0{i + 1}</span>
-              <h3>{choice}</h3>
-            </div>
-          ))}
-        </div>
-      </section>
-      <ContactBand />
-    </>
-  );
-}
 function Studio() {
   return (
     <>
@@ -1856,8 +1728,6 @@ export function Shell() {
           <Route path="/formations/:id" element={<FormationDetail />} />
           <Route path="/expertises" element={<ExpertiseIndex />} />
           <Route path="/expertises/:id" element={<ServiceDetail />} />
-          <Route path="/projets" element={<Projects />} />
-          <Route path="/projets/:id" element={<ProjectDetail />} />
           <Route path="/studio" element={<Studio />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/confidentialite" element={<Privacy />} />

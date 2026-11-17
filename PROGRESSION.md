@@ -14,8 +14,9 @@
 | --- | --- |
 | Nos logiciels | `saas` |
 | Formations | `formations` |
-| Projets | `realisations` |
 | Contact (sujets / questions) | `forms` (+ sujets issus de `saas` / `formations` / expertises statiques) |
+
+**Retiré** : page Projets (`/projets`) et lien navbar.
 
 Route : `GET /api/v1/public/cms/{organization}/{collection}` (+ médias).
 
