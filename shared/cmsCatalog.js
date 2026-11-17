@@ -99,8 +99,8 @@ export async function fetchCollection(base, org, collection, { signal, map = map
 }
 
 /**
- * Assemble le catalogue. Repli statique uniquement si CMS non configuré ou si la collection a échoué.
- * Une collection OK et vide reste [].
+ * Assemble le catalogue. Repli statique si CMS non configuré, si la collection a échoué
+ * ou si elle ne contient encore aucune entrée publiée (sinon les cards disparaissent du site).
  */
 export async function loadCatalog({ base, org, staticCatalog, signal } = {}) {
   const fallback = {
@@ -120,14 +120,15 @@ export async function loadCatalog({ base, org, staticCatalog, signal } = {}) {
     fetchCollection(base, org, CMS_COLLECTIONS.forms, { signal, map: (row) => mapFormEntry(row) }),
   ]);
 
-  const anyOk = [saas, formations, realisations, forms].some((r) => r.ok);
+  const filled = (r) => r.ok && r.items.length > 0;
+  const anyFilled = [saas, formations, realisations, forms].some(filled);
   return {
-    products: saas.ok ? saas.items : staticCatalog.products,
-    formations: formations.ok ? formations.items : staticCatalog.formations,
+    products: filled(saas) ? saas.items : staticCatalog.products,
+    formations: filled(formations) ? formations.items : staticCatalog.formations,
     services: staticCatalog.services,
-    projects: realisations.ok ? realisations.items : staticCatalog.projects,
-    forms: forms.ok ? forms.items : null,
-    source: anyOk ? "cms" : "static",
+    projects: filled(realisations) ? realisations.items : staticCatalog.projects,
+    forms: filled(forms) ? forms.items : null,
+    source: anyFilled ? "cms" : "static",
   };
 }
 

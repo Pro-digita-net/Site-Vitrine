@@ -50,11 +50,12 @@ globalThis.fetch = async (url) => {
 
 const loaded = await loadCatalog({ base: "https://core.test", org: "prodigital", staticCatalog });
 assert.equal(loaded.source, "cms");
-assert.deepEqual(loaded.products, []);
+// Collection publiée mais vide → contenu statique conservé (aucune card ne disparaît).
+assert.equal(loaded.products[0].name, "Static P");
 assert.equal(loaded.formations[0].name, "Formation CMS");
 assert.equal(loaded.projects[0].name, "Projet CMS");
 assert.equal(loaded.services[0].name, "Static S");
-assert.deepEqual(loaded.forms, []);
+assert.equal(loaded.forms, null);
 
 const offline = await loadCatalog({ base: "", org: "", staticCatalog });
 assert.equal(offline.source, "static");
