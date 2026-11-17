@@ -22,12 +22,24 @@ Route : `GET /api/v1/public/cms/{organization}/{collection}` (+ médias).
 **Repli**
 
 - CMS absent ou erreur sur une collection → repli `shared/data.js` pour cette collection.
-- `200` + `data: []` → liste vide conservée.
+- `200` + `data: []` → liste vide conservée (rien de publié = rien affiché).
+- `forms` vide → questions intégrées (`shared/contactQuestions.js`) : les demandes restent possibles.
 - Expertises toujours statiques.
 
 **Conservé** : design, animations, responsive, envoi des demandes et e-mails.
 
-**Correctif** : Accueil / Studio / Expertises — plus de masquage GSAP (`autoAlpha: 0`) sur cartes, boutons et grilles ; contenu toujours visible.
+### 17/11 — Retour des pages statiques à l'affichage du 16/11
+
+- **Cause des cards manquantes en ligne** : le CMS de production répond `200 {"data":[]}` pour toutes les collections, et le bundle déployé lisait encore le CMS pour Accueil / Studio / Expertises. Ce n'était pas un problème d'animation.
+- `frontend/src/motion.js` restauré à l'identique du 16/11 (`aeff3a5`) : les révélations au scroll d'Accueil / Studio / Expertises, retirées par les correctifs du 17/11 au matin, sont de retour.
+- `shared/cmsCatalog.js` : retrait du repli statique sur liste vide ajouté le 17/11 (`bc2feb4`). Les pages dynamiques n'affichent que le publié.
+- Vérifié sur le build de production (PC 1440 px, mobile 390 px), avec un CMS simulé vide puis avec une entrée publiée par collection :
+  - pages statiques complètes et identiques dans les deux cas (30 / 10 / 39 éléments) ;
+  - entrées publiées affichées sur Logiciels, Formations et Projets ; sujets Formations / Logiciels du formulaire alimentés par le CMS ;
+  - questions intégrées toujours présentes.
+- Tests : `test-cms-catalog`, `test-contact`, SEO (29 pages) et contact-api (11/11), tous réussis.
+- **À faire côté Studio** : publier les SaaS, formations et réalisations. Sinon, ces trois pages restent vides en ligne.
+- **Non vérifiable d'ici** : le filtrage des brouillons par l'API publique, qui est hors de ce dépôt (tous ses retours sont vides aujourd'hui).
 
 ### Coolify — service `site` (build)
 
