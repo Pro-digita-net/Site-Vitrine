@@ -4,10 +4,11 @@
  * Une réponse 200 avec data: [] est une collection volontairement vide (pas de repli statique).
  */
 
+// Modulable via CMS (publié uniquement) : SaaS, formations, projets, formulaire.
+// Accueil, Studio et Expertises restent dans shared/data.js.
 export const CMS_COLLECTIONS = {
   products: "saas",
   formations: "formations",
-  services: "services",
   projects: "realisations",
   forms: "forms",
 };
@@ -112,19 +113,18 @@ export async function loadCatalog({ base, org, staticCatalog, signal } = {}) {
   };
   if (!base || !org) return fallback;
 
-  const [saas, formations, services, realisations, forms] = await Promise.all([
+  const [saas, formations, realisations, forms] = await Promise.all([
     fetchCollection(base, org, CMS_COLLECTIONS.products, { signal }),
     fetchCollection(base, org, CMS_COLLECTIONS.formations, { signal }),
-    fetchCollection(base, org, CMS_COLLECTIONS.services, { signal }),
     fetchCollection(base, org, CMS_COLLECTIONS.projects, { signal }),
     fetchCollection(base, org, CMS_COLLECTIONS.forms, { signal, map: (row) => mapFormEntry(row) }),
   ]);
 
-  const anyOk = [saas, formations, services, realisations, forms].some((r) => r.ok);
+  const anyOk = [saas, formations, realisations, forms].some((r) => r.ok);
   return {
     products: saas.ok ? saas.items : staticCatalog.products,
     formations: formations.ok ? formations.items : staticCatalog.formations,
-    services: services.ok ? services.items : staticCatalog.services,
+    services: staticCatalog.services,
     projects: realisations.ok ? realisations.items : staticCatalog.projects,
     forms: forms.ok ? forms.items : null,
     source: anyOk ? "cms" : "static",

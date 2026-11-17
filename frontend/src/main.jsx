@@ -46,6 +46,10 @@ import {
   Clock3,
 } from "lucide-react";
 import {
+  products,
+  formations,
+  services,
+  projects,
   expertiseSituations,
   contactEmail,
 } from "../../shared/data.js";
@@ -539,7 +543,6 @@ function FormationCard({ formation }) {
   );
 }
 function ServiceCards() {
-  const { services } = useCatalog();
   return (
     <div className="services-grid">
       {services.map((service) => (
@@ -673,7 +676,6 @@ function Method({
   );
 }
 function Home() {
-  const { products, formations, services, projects } = useCatalog();
   return (
     <>
       <section className="hero container">
@@ -1361,7 +1363,6 @@ function FormationDetail() {
   );
 }
 function ExpertiseIndex() {
-  const { services } = useCatalog();
   return (
     <>
       <Breadcrumb items={[{ label: "Nos expertises" }]} />
@@ -1488,7 +1489,6 @@ function ExpertiseIndex() {
   );
 }
 function ServiceDetail() {
-  const { services } = useCatalog();
   const { id } = useParams();
   const service = services.find((s) => s.id === id);
   if (!service) return <NotFound />;
@@ -1588,7 +1588,7 @@ function ServiceDetail() {
   );
 }
 function Projects() {
-  const { projects } = useCatalog();
+  const { projects: items } = useCatalog();
   return (
     <>
       <Breadcrumb items={[{ label: "Projets" }]} />
@@ -1606,7 +1606,7 @@ function Projects() {
         </p>
       </section>
       <section className="container project-list">
-        {projects.map((p, i) => (
+        {items.map((p, i) => (
           <Link
             key={p.id}
             className="project-list-item"
@@ -1629,9 +1629,9 @@ function Projects() {
   );
 }
 function ProjectDetail() {
-  const { projects } = useCatalog();
+  const { projects: items } = useCatalog();
   const { id } = useParams();
-  const project = projects.find((p) => p.id === id);
+  const project = items.find((p) => p.id === id);
   if (!project) return <NotFound />;
   return (
     <>
