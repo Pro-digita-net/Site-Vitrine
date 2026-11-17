@@ -753,11 +753,10 @@ function Home() {
           <ServiceCards />
         </div>
       </section>
-      <Method />
       <section className="section container home-solutions">
         <div className="section-heading split">
           <div>
-            <Eyebrow number="06">NOS FUTURS OUTILS</Eyebrow>
+            <Eyebrow number="04">NOS FUTURS OUTILS</Eyebrow>
             <h2>
               Des usages concrets.
               <br />
@@ -790,10 +789,11 @@ function Home() {
           </Button>
         </div>
       </section>
+      <Method />
       <section className="section container home-formations">
         <div className="section-heading split">
           <div>
-            <Eyebrow number="07">NOS FORMATIONS</Eyebrow>
+            <Eyebrow number="06">NOS FORMATIONS</Eyebrow>
             <h2>
               Apprendre vite.
               <br />
