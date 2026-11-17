@@ -32,15 +32,14 @@ const SCROLL_HEADINGS = [
 ].join(",");
 
 // Groupes révélés au scroll ; chaque entrée forme sa propre cascade.
-const SCROLL_GROUPS = [
+const   SCROLL_GROUPS = [
   ".offer-strip > *",
   // Le titre « vision » garde son retour à la ligne conditionnel : fondu simple, sans découpe.
   ".vision > .eyebrow, .vision > div > *",
   ".section-heading .eyebrow, .section-heading > p, .section-heading > .quiet-link, .section-intro",
-  ".services-grid > *",
+  // services-grid / projects-grid : animés au chargement (intro) pour éviter autoAlpha:0 bloqué.
   ".expertise-panel",
   ".situations-grid > *",
-  ".projects-grid > *",
   ".home-solutions .products-grid > *",
   ".home-formations .products-grid > *",
   ".catalog-footer",
@@ -157,9 +156,8 @@ function intro() {
     ease: "power3.out",
     delay: 0.25,
   });
-  // Catalogue : la grille change avec les filtres, on l’anime donc au chargement
-  // plutôt qu’au scroll (aucune carte ne peut rester masquée).
-  gsap.from(".catalog-content .products-grid > *", {
+  // Grilles susceptibles de rester masquées si un ScrollTrigger rate : révélation au chargement.
+  gsap.from(".catalog-content .products-grid > *, .services-grid > *, .projects-grid > *", {
     autoAlpha: 0,
     y: 28,
     duration: 0.9,
